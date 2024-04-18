@@ -99,13 +99,13 @@ pub fn get_list_template() -> Result<Vec<Template>> {
 
 fn collect_template(mut file: &File) -> Result<Vec<Template>> {
     file.seek(SeekFrom::Start(0))?;
-    let tasks: Vec<Template> = match serde_json::from_reader(file) {
-        Ok(tasks) => tasks,
+    let templates: Vec<Template> = match serde_json::from_reader(file) {
+        Ok(templates) => templates,
         Err(e) if e.is_eof() => Vec::new(),
         Err(e) => Err(e)?,
     };
     file.seek(SeekFrom::Start(0))?;
-    Ok(tasks)
+    Ok(templates)
 }
 
 impl fmt::Display for Template {
