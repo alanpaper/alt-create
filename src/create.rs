@@ -22,6 +22,10 @@ pub fn init(templates: Vec<Template>) {
                 git_pull_command(temp);
             }
         }
-        Err(_) => println!("出错，请重新选择"),
+        Err(_) => println!("未选择模板"),
     }
+
+    let select_template: Result<String, InquireError> =
+        Select::new("请选择模板", template_names).prompt();
+
 }
