@@ -1,14 +1,23 @@
 mod action;
 mod command;
 mod create;
+mod file;
 mod templates;
+// mod utils;
 
 use action::{Action::*, CommandLineArgs};
 use anyhow::{anyhow, Ok};
+use file::copy_dir;
 use structopt::StructOpt;
 use templates::Template;
 
 fn main() -> Result<(), anyhow::Error> {
+    let mut path = std::env::current_dir().unwrap();
+    path.push("template-preact");
+    let mut path_dest = std::env::current_dir().unwrap();
+    path_dest.push("dist/");
+    let _ = copy_dir(&path, &path_dest);
+
     let CommandLineArgs { action, git_path } = CommandLineArgs::from_args();
 
     match action {
