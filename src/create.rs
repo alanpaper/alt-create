@@ -1,5 +1,5 @@
 use crate::{command::git_pull_command, templates::Template};
-use inquire::{error::InquireError, Select, Text,  validator::{StringValidator, Validation}};
+use inquire::{error::InquireError, validator::Validation, Select, Text};
 
 pub fn init(templates: Vec<Template>) {
     let current_dir = std::env::current_dir();
@@ -24,19 +24,19 @@ pub fn init(templates: Vec<Template>) {
         }
         Err(_) => println!("未选择模板"),
     }
-
-
 }
 
 fn create_project(temp: Template) {
-    let validator = |input: &str| if input.chars().count() > 140 {
-        Ok(Validation::Invalid("超长".into()))
-    } else {
-        Ok(Validation::Valid)
+    let validator = |input: &str| {
+        if input.chars().count() > 140 {
+            Ok(Validation::Invalid("超长".into()))
+        } else {
+            Ok(Validation::Valid)
+        }
     };
 
-    let input_project_name = Text::new("请输入项目名称:")
-        .default("alt-project")
+    let input_project_name = Text::new("请输入项目名")
+        .with_default("alt-prioject")
         .with_validator(validator)
         .prompt();
 
@@ -46,5 +46,4 @@ fn create_project(temp: Template) {
         }
         Err(_) => panic!("程序终止！"),
     }
-
 }

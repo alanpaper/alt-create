@@ -97,7 +97,7 @@ pub fn get_list_template() -> Result<Vec<Template>> {
     Ok(templates)
 }
 
-fn collect_template(mut file: &File) -> Result<Vec<Template>> {
+pub fn collect_template(mut file: &File) -> Result<Vec<Template>> {
     file.seek(SeekFrom::Start(0))?;
     let templates: Vec<Template> = match serde_json::from_reader(file) {
         Ok(templates) => templates,
