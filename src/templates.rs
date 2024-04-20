@@ -1,17 +1,18 @@
 use chrono::{serde::ts_seconds, DateTime, Local, Utc};
+use regex::Regex;
 use serde::Deserialize;
 use serde::Serialize;
 
 use std::fmt;
+use std::fs;
 use std::fs::{File, OpenOptions};
-use std::io::BufReader;
 use std::io::{Result, Seek, SeekFrom};
 use std::path::PathBuf;
 
 const TEMPLATE_FILE_NAME: &str = "templates.json";
 const TEMPLATE_PACKAGE_NAME: &str = "package.json";
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Template {
     pub git_path: PathBuf,
     pub name: String,
@@ -33,14 +34,14 @@ impl Template {
     }
 }
 
-pub fn register_template(template: Template) -> Result<()> {
+pub fn register_template(template: &Template) -> Result<()> {
     let file = OpenOptions::new()
         .read(true)
         .write(true)
         .create(true)
         .open(TEMPLATE_FILE_NAME)?;
     let mut templates = collect_template(&file)?;
-    templates.push(template);
+    templates.push(template.clone());
     serde_json::to_writer(file, &templates)?;
     Ok(())
 }
@@ -110,19 +111,20 @@ pub fn collect_template(mut file: &File) -> Result<Vec<Template>> {
     Ok(templates)
 }
 
-pub fn rename_package_name(project_name: &String) -> Result<()> {
+pub fn create_project_package(temp: &Template, project_name: &String) -> Result<()> {
     let mut project_dir = std::env::current_dir().unwrap();
-    project_dir.push(project_name);
+    let mut temp_dir = std::env::current_dir().unwrap();
+    project_dir.push(&project_name);
     project_dir.push(TEMPLATE_PACKAGE_NAME);
-
-    let file = File::open(project_dir)?;
-    let reader = BufReader::new(file);
-
-    let u = serde_json::from_reader(reader)?;
-
-    println!("{:#?}", u);
-
-    Ok(u)
+    temp_dir.push(&temp.name);
+    temp_dir.push(TEMPLATE_PACKAGE_NAME);
+    let file = fs::read_to_string(temp_dir)?;
+    let re = Regex::new(r#"\"name\": \"(.*?)\""#).unwrap();
+    let result = re
+        .replace(&file, format!("\"name\": \"{}\"", project_name))
+        .to_string();
+    let _ = fs::write(project_dir, result);
+    Ok(())
 }
 
 impl fmt::Display for Template {

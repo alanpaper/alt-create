@@ -1,7 +1,9 @@
 use core::panic;
-use std::path::{Path, PathBuf};
 
-use crate::{command::git_pull_template, file::copy_dir, templates::{rename_package_name, Template}};
+use crate::{
+    file::copy_dir,
+    templates::{create_project_package, Template},
+};
 use inquire::{error::InquireError, validator::Validation, Select, Text};
 
 pub fn init(templates: Vec<Template>) {
@@ -20,7 +22,6 @@ pub fn init(templates: Vec<Template>) {
             }
             if let Some(temp) = temp {
                 create_project(temp);
-                // git_pull_template(temp);
             }
         }
         Err(_) => println!("未选择模板"),
@@ -45,11 +46,11 @@ fn create_project(temp: Template) {
         Ok(name) => {
             let mut str_dir = std::env::current_dir().unwrap();
             let mut dest_dir = std::env::current_dir().unwrap();
-            str_dir.push(temp.name);
+            str_dir.push(&temp.name);
             dest_dir.push(&name);
             copy_dir(&str_dir, &dest_dir);
-
-            rename_package_name(&name);
+            let _ = create_project_package(&temp, &name);
+            println!("完成");
         }
         Err(_) => panic!("程序终止！"),
     }

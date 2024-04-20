@@ -14,9 +14,11 @@ pub fn copy_dir(src_dir: &PathBuf, dest_dir: &PathBuf) {
         let mut src_file = src_dir.clone();
         let mut dest_file = dest_dir.clone();
         if let Ok(entry) = entry {
-            src_file.push(entry.file_name());
-            dest_file.push(entry.file_name());
-            copy_file(&src_file, &dest_file);
+            if entry.file_name() != "package.json" {
+                src_file.push(entry.file_name());
+                dest_file.push(entry.file_name());
+                copy_file(&src_file, &dest_file);
+            }
         }
     }
 }
