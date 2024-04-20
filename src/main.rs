@@ -21,9 +21,9 @@ fn main() -> Result<(), anyhow::Error> {
                     "请输入模板文件对应的git仓库地址eg: -g ssh://git@hithub.com/shared.git"
                 ))
                 .unwrap();
+            git_pull_template(&git_path);
             let temp = Template::new(git_path, name, "blue".to_owned());
             templates::register_template(&temp)?;
-            git_pull_template(temp);
         }
         Remove { name } => templates::remove_template(name)?,
         List => templates::list_template()?,

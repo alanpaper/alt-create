@@ -43,6 +43,7 @@ pub fn register_template(template: &Template) -> Result<()> {
     let mut templates = collect_template(&file)?;
     templates.push(template.clone());
     serde_json::to_writer(file, &templates)?;
+    println!("{} 模板完成注册", template.name);
     Ok(())
 }
 
