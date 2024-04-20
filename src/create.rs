@@ -1,10 +1,10 @@
-use crate::{command::git_pull_command, templates::Template};
+use core::panic;
+use std::path::{Path, PathBuf};
+
+use crate::{command::git_pull_template, file::copy_dir, templates::{rename_package_name, Template}};
 use inquire::{error::InquireError, validator::Validation, Select, Text};
 
 pub fn init(templates: Vec<Template>) {
-    let current_dir = std::env::current_dir();
-    println!("current_dir={:?}", current_dir);
-
     let template_names = templates.iter().map(|t| t.name.clone()).collect::<Vec<_>>();
 
     let select_template: Result<String, InquireError> =
@@ -12,7 +12,7 @@ pub fn init(templates: Vec<Template>) {
 
     match select_template {
         Ok(name) => {
-            let mut temp = None;
+            let mut temp: Option<Template> = None;
             for t in templates {
                 if t.name == name {
                     temp = Some(t);
@@ -20,6 +20,7 @@ pub fn init(templates: Vec<Template>) {
             }
             if let Some(temp) = temp {
                 create_project(temp);
+                // git_pull_template(temp);
             }
         }
         Err(_) => println!("未选择模板"),
@@ -42,7 +43,13 @@ fn create_project(temp: Template) {
 
     match input_project_name {
         Ok(name) => {
-            git_pull_command(temp, name);
+            let mut str_dir = std::env::current_dir().unwrap();
+            let mut dest_dir = std::env::current_dir().unwrap();
+            str_dir.push(temp.name);
+            dest_dir.push(&name);
+            copy_dir(&str_dir, &dest_dir);
+
+            rename_package_name(&name);
         }
         Err(_) => panic!("程序终止！"),
     }

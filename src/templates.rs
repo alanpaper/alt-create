@@ -4,10 +4,12 @@ use serde::Serialize;
 
 use std::fmt;
 use std::fs::{File, OpenOptions};
+use std::io::BufReader;
 use std::io::{Result, Seek, SeekFrom};
 use std::path::PathBuf;
 
 const TEMPLATE_FILE_NAME: &str = "templates.json";
+const TEMPLATE_PACKAGE_NAME: &str = "package.json";
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Template {
@@ -106,6 +108,21 @@ pub fn collect_template(mut file: &File) -> Result<Vec<Template>> {
     };
     file.seek(SeekFrom::Start(0))?;
     Ok(templates)
+}
+
+pub fn rename_package_name(project_name: &String) -> Result<()> {
+    let mut project_dir = std::env::current_dir().unwrap();
+    project_dir.push(project_name);
+    project_dir.push(TEMPLATE_PACKAGE_NAME);
+
+    let file = File::open(project_dir)?;
+    let reader = BufReader::new(file);
+
+    let u = serde_json::from_reader(reader)?;
+
+    println!("{:#?}", u);
+
+    Ok(u)
 }
 
 impl fmt::Display for Template {
