@@ -57,13 +57,24 @@ pub fn get_temp_root_path() -> PathBuf {
     temp_path
 }
 
+// 获取当前执行文件根目录
+pub fn get_temp_config_file() -> PathBuf {
+    let mut path = get_temp_root_path();
+    path.push(TEMPLATE_DIR);
+    check_create_dir(&path.to_str().unwrap());
+    path.push(TEMPLATE_FILE_NAME);
+    path
+}
+
 pub fn register_template(template: &Template) -> Result<()> {
-    check_create_dir(TEMPLATE_DIR);
+    let mut path = get_temp_root_path();
+    path.push(TEMPLATE_DIR);
+    check_create_dir(&path.to_str().unwrap());
     let file = OpenOptions::new()
         .read(true)
         .write(true)
         .create(true)
-        .open(TEMPLATE_FILE_NAME)?;
+        .open(get_temp_config_file())?;
     let mut templates = collect_template(&file)?;
     templates.push(template.clone());
     serde_json::to_writer_pretty(file, &templates)?;
@@ -76,7 +87,7 @@ pub fn remove_template(name: String) -> Result<()> {
     let file = OpenOptions::new()
         .read(true)
         .write(true)
-        .open(TEMPLATE_FILE_NAME)?;
+        .open(get_temp_config_file())?;
     let templates = collect_template(&file)?;
     let ans = templates
         .iter()
@@ -89,7 +100,7 @@ pub fn remove_template(name: String) -> Result<()> {
 }
 
 pub fn update_template(name: String) -> Result<()> {
-    let file = OpenOptions::new().read(true).open(TEMPLATE_FILE_NAME)?;
+    let file = OpenOptions::new().read(true).open(get_temp_config_file())?;
     let templates = collect_template(&file)?;
     let temp = templates.iter().find(|f| f.name == name);
     if let Some(temp) = temp {
@@ -99,7 +110,7 @@ pub fn update_template(name: String) -> Result<()> {
 }
 
 pub fn update_all_template() -> Result<()> {
-    let file = OpenOptions::new().read(true).open(TEMPLATE_FILE_NAME)?;
+    let file = OpenOptions::new().read(true).open(get_temp_config_file())?;
     let templates = collect_template(&file)?;
     for temp in templates {
         clone_template_local(&temp);
@@ -108,7 +119,7 @@ pub fn update_all_template() -> Result<()> {
 }
 
 pub fn list_template() -> Result<()> {
-    let file = OpenOptions::new().read(true).open(TEMPLATE_FILE_NAME)?;
+    let file = OpenOptions::new().read(true).open(get_temp_config_file())?;
     let templates = collect_template(&file)?;
     if templates.is_empty() {
         println!("暂未注册相关模板!")
@@ -123,7 +134,7 @@ pub fn list_template() -> Result<()> {
 }
 
 pub fn get_list_template() -> Result<Vec<Template>> {
-    let file = OpenOptions::new().read(true).open(TEMPLATE_FILE_NAME)?;
+    let file = OpenOptions::new().read(true).open(get_temp_config_file())?;
     let templates = collect_template(&file)?;
     if templates.is_empty() {
         println!("暂未注册相关模板!");

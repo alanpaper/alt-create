@@ -10,7 +10,7 @@ use structopt::StructOpt;
 use templates::Template;
 
 pub const TEMPLATE_DIR: &str = "temp";
-pub const TEMPLATE_FILE_NAME: &str = "temp/templates.json";
+pub const TEMPLATE_FILE_NAME: &str = "templates.json";
 pub const TEMPLATE_PACKAGE_NAME: &str = "package.json";
 pub const DEFAULT_PROJECT_NAME: &str = "alt-project";
 

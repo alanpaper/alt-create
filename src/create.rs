@@ -1,5 +1,8 @@
 use core::panic;
-use std::fs::{self, read_to_string};
+use std::{
+    fs::{self, read_to_string},
+    path::Path,
+};
 
 use crate::{
     file::copy_dir,
@@ -62,17 +65,19 @@ fn create_project(temp: Template) -> Result<(), ()> {
 
 fn create_project_package(temp: &Template, project_name: &String) -> Result<(), ()> {
     let mut project_dir = std::env::current_dir().unwrap();
-    let mut temp_dir = get_temp_root_path();
+    let mut pkg_path = get_temp_root_path();
     project_dir.push(&project_name);
     project_dir.push(TEMPLATE_PACKAGE_NAME);
-    temp_dir.push(TEMPLATE_DIR);
-    temp_dir.push(&temp.name);
-    temp_dir.push(TEMPLATE_PACKAGE_NAME);
-    let file = read_to_string(temp_dir).unwrap();
-    let re = Regex::new(r#"\"name\": \"(.*?)\""#).unwrap();
-    let result = re
-        .replace(&file, format!("\"name\": \"{}\"", project_name))
-        .to_string();
-    let _ = fs::write(project_dir, result);
+    pkg_path.push(TEMPLATE_DIR);
+    pkg_path.push(&temp.name);
+    pkg_path.push(TEMPLATE_PACKAGE_NAME);
+    if Path::new(&pkg_path).exists() {
+        let file = read_to_string(pkg_path).unwrap();
+        let re = Regex::new(r#"\"name\": \"(.*?)\""#).unwrap();
+        let result = re
+            .replace(&file, format!("\"name\": \"{}\"", project_name))
+            .to_string();
+        let _ = fs::write(project_dir, result);
+    }
     Ok(())
 }
