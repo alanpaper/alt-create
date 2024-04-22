@@ -1,7 +1,18 @@
 
+
+    根据模板创建前端新项目 rust实现
+
 ### alt-create
 
-    根据模板创建前端新项目
+#### 使用方式
+
+1. 拉取该项目文件
+2. 执行`cargo run -r`
+3. 创建alt-create文件夹
+4. 将`target/release/`下的`alt-create`文件复制到alt-create
+5. 添加alt-create可执行文件的环境变量
+
+    仅在mac环境下做过测试
 
 ### 功能
 
