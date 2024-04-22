@@ -5,26 +5,30 @@ mod file;
 mod templates;
 
 use action::{Action::*, CommandLineArgs};
-use anyhow::{anyhow, Ok};
-use command::git_pull_template;
+use anyhow::Ok;
 use structopt::StructOpt;
 use templates::Template;
 
+pub const TEMPLATE_DIR: &str = "temp";
+pub const TEMPLATE_FILE_NAME: &str = "temp/templates.json";
+pub const TEMPLATE_PACKAGE_NAME: &str = "package.json";
+
 fn main() -> Result<(), anyhow::Error> {
-    let CommandLineArgs { action, git_path, temp_name } = CommandLineArgs::from_args();
+    let CommandLineArgs {
+        action,
+        git_path,
+        temp_path,
+    } = CommandLineArgs::from_args();
 
     match action {
         Create => create::init(templates::get_list_template().unwrap()),
         Register { name } => {
-            let git_path = git_path
-                .ok_or(anyhow!(
-                    "请输入模板文件对应的git仓库地址eg: -g ssh://git@hithub.com/shared.git"
-                ))
-                .unwrap();
-            git_pull_template(&git_path, name);
-
-            let temp = Template::new(git_path, temp_name, "blue".to_owned());
-            templates::register_template(&temp)?;
+            if git_path.is_some() || temp_path.is_some() {
+                let temp = Template::new(git_path, temp_path, name, "blue".to_owned());
+                templates::register_template(&temp)?;
+            } else {
+                println!("注册失败 请检查项目模板地址");
+            }
         }
         Remove { name } => templates::remove_template(name)?,
         List => templates::list_template()?,

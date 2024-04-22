@@ -9,12 +9,15 @@ use std::fs::{File, OpenOptions};
 use std::io::{Result, Seek, SeekFrom};
 use std::path::PathBuf;
 
-const TEMPLATE_FILE_NAME: &str = "templates.json";
-const TEMPLATE_PACKAGE_NAME: &str = "package.json";
+use crate::command::git_pull_template;
+use crate::file::create_temp_dir;
+use crate::TEMPLATE_FILE_NAME;
+use crate::TEMPLATE_PACKAGE_NAME;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Template {
-    pub git_path: PathBuf,
+    pub git_path: Option<PathBuf>,
+    pub temp_path: Option<PathBuf>,
     pub name: String,
     pub color: String,
 
@@ -23,20 +26,17 @@ pub struct Template {
 }
 
 impl Template {
-    pub fn new(git_path: PathBuf, name: Option<String>, color: String) -> Template {
+    pub fn new(
+        git_path: Option<PathBuf>,
+        temp_path: Option<PathBuf>,
+        name: String,
+        color: String,
+    ) -> Template {
         let create_at: DateTime<Utc> = Utc::now();
-        if let Some(name) = name {
-            return Template {
-                git_path,
-                name,
-                color,
-                create_at,
-            };
-        }
-        let temp_name = get_project_name(&git_path);
         Template {
+            temp_path,
             git_path,
-            name: temp_name.unwrap(),
+            name,
             color,
             create_at,
         }
@@ -44,6 +44,7 @@ impl Template {
 }
 
 pub fn register_template(template: &Template) -> Result<()> {
+    create_temp_dir();
     let file = OpenOptions::new()
         .read(true)
         .write(true)
@@ -53,6 +54,10 @@ pub fn register_template(template: &Template) -> Result<()> {
     templates.push(template.clone());
     serde_json::to_writer(file, &templates)?;
     println!("{} 模板完成注册", template.name);
+
+    if let Some(git_path) = &template.git_path {
+        git_pull_template(git_path, &template.name);
+    }
     Ok(())
 }
 
@@ -136,11 +141,4 @@ impl fmt::Display for Template {
         let created_at = self.create_at.with_timezone(&Local).format("%F %H:%M");
         write!(f, "{:<50} {:?} [{}]", self.name, self.git_path, created_at)
     }
-}
-
-fn get_project_name(git_link: &PathBuf) -> Option<String> {
-    let re = Regex::new(r"(?<=git@|https?://)[^/]*(/.*)").unwrap();
-    let captures = re.captures(git_link.to_str()?)?;
-    let temp_name = captures.get(1)?.as_str();
-    Some(String::from(temp_name))
 }

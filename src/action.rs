@@ -3,15 +3,19 @@ use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
 pub enum Action {
+    #[structopt(name = "create", about = "根据已注册模板创建新项目")]
     Create,
+    #[structopt(name = "register", about = "注册模板")]
     Register {
         #[structopt()]
-        name: Option<String>,
+        name: String,
     },
+    #[structopt(name = "remove", about = "删除已注册模板")]
     Remove {
         #[structopt()]
         name: String,
     },
+    #[structopt(name = "list", about = "打印已注册模板")]
     List,
 }
 
@@ -28,5 +32,5 @@ pub struct CommandLineArgs {
     pub git_path: Option<PathBuf>,
 
     #[structopt(short, long)]
-    pub temp_name: Option<String>,
+    pub temp_path: Option<PathBuf>,
 }

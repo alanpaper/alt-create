@@ -1,7 +1,9 @@
 use std::{
-    fs::{copy, create_dir_all, read_dir},
+    fs::{copy, create_dir, create_dir_all, read_dir},
     path::{Path, PathBuf},
 };
+
+use crate::TEMPLATE_DIR;
 
 pub fn copy_dir(src_dir: &PathBuf, dest_dir: &PathBuf) {
     if !Path::new(&dest_dir).exists() {
@@ -28,5 +30,13 @@ pub fn copy_file(src: &PathBuf, dest: &PathBuf) {
         copy_dir(src, dest);
     } else {
         copy(src, dest).expect("复制文件出错");
+    }
+}
+
+pub fn create_temp_dir() {
+    if !Path::new(TEMPLATE_DIR).exists() {
+        create_dir(TEMPLATE_DIR).expect("创建temp目录失败");
+    } else {
+        println!("目录{:?}已存在", TEMPLATE_DIR);
     }
 }
