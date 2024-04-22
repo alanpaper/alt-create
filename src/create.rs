@@ -2,7 +2,9 @@ use core::panic;
 use std::fs::{self, read_to_string};
 
 use crate::{
-    file::copy_dir, templates::Template, DEFAULT_PROJECT_NAME, TEMPLATE_DIR, TEMPLATE_PACKAGE_NAME,
+    file::copy_dir,
+    templates::{get_temp_root_path, Template},
+    DEFAULT_PROJECT_NAME, TEMPLATE_DIR, TEMPLATE_PACKAGE_NAME,
 };
 use inquire::{error::InquireError, validator::Validation, Select, Text};
 use regex::Regex;
@@ -45,12 +47,12 @@ fn create_project(temp: Template) -> Result<(), ()> {
 
     match input_project_name {
         Ok(name) => Ok({
-            let mut str_dir = std::env::current_dir().unwrap();
+            let mut temp_dir = get_temp_root_path();
             let mut dest_dir = std::env::current_dir().unwrap();
-            str_dir.push(TEMPLATE_DIR);
-            str_dir.push(&temp.name);
+            temp_dir.push(TEMPLATE_DIR);
+            temp_dir.push(&temp.name);
             dest_dir.push(&name);
-            copy_dir(&str_dir, &dest_dir);
+            copy_dir(&temp_dir, &dest_dir);
             create_project_package(&temp, &name).unwrap();
             println!("创建完成");
         }),
@@ -60,7 +62,7 @@ fn create_project(temp: Template) -> Result<(), ()> {
 
 fn create_project_package(temp: &Template, project_name: &String) -> Result<(), ()> {
     let mut project_dir = std::env::current_dir().unwrap();
-    let mut temp_dir = std::env::current_dir().unwrap();
+    let mut temp_dir = get_temp_root_path();
     project_dir.push(&project_name);
     project_dir.push(TEMPLATE_PACKAGE_NAME);
     temp_dir.push(TEMPLATE_DIR);

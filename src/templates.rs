@@ -42,6 +42,20 @@ impl Template {
         }
     }
 }
+// 获取当前执行文件根目录
+pub fn get_temp_root_path() -> PathBuf {
+    let path = std::env::current_exe();
+    let mut temp_path = PathBuf::new();
+    match path {
+        Ok(path) => {
+            if let Some(parent) = path.parent() {
+                temp_path = parent.to_path_buf();
+            }
+        }
+        Err(_) => println!("获取temp保存目录出错"),
+    }
+    temp_path
+}
 
 pub fn register_template(template: &Template) -> Result<()> {
     check_create_dir(TEMPLATE_DIR);
@@ -130,7 +144,7 @@ pub fn collect_template(mut file: &File) -> Result<Vec<Template>> {
 }
 
 fn clone_template_local(template: &Template) {
-    let mut temp_dir = std::env::current_dir().unwrap();
+    let mut temp_dir = get_temp_root_path();
     temp_dir.push(TEMPLATE_DIR);
     temp_dir.push(&template.name);
     check_remove_dir(temp_dir.to_str().unwrap());
