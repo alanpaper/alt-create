@@ -6,10 +6,9 @@ use std::{
 use crate::TEMPLATE_DIR;
 
 pub fn copy_dir(src_dir: &PathBuf, dest_dir: &PathBuf) {
+    println!("{:?}", src_dir);
     if !Path::new(&dest_dir).exists() {
         create_dir_all(&dest_dir).expect("创建目录失败");
-    } else {
-        println!("目录{:?}已存在", &dest_dir);
     }
     let dir = read_dir(src_dir).unwrap();
     for entry in dir {
@@ -36,7 +35,5 @@ pub fn copy_file(src: &PathBuf, dest: &PathBuf) {
 pub fn create_temp_dir() {
     if !Path::new(TEMPLATE_DIR).exists() {
         create_dir(TEMPLATE_DIR).expect("创建temp目录失败");
-    } else {
-        println!("目录{:?}已存在", TEMPLATE_DIR);
     }
 }

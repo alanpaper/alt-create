@@ -11,6 +11,7 @@ use std::path::PathBuf;
 
 use crate::command::git_pull_template;
 use crate::file::create_temp_dir;
+use crate::TEMPLATE_DIR;
 use crate::TEMPLATE_FILE_NAME;
 use crate::TEMPLATE_PACKAGE_NAME;
 
@@ -52,7 +53,7 @@ pub fn register_template(template: &Template) -> Result<()> {
         .open(TEMPLATE_FILE_NAME)?;
     let mut templates = collect_template(&file)?;
     templates.push(template.clone());
-    serde_json::to_writer(file, &templates)?;
+    serde_json::to_writer_pretty(file, &templates)?;
     println!("{} 模板完成注册", template.name);
 
     if let Some(git_path) = &template.git_path {
@@ -65,22 +66,15 @@ pub fn remove_template(name: String) -> Result<()> {
     let file = OpenOptions::new()
         .read(true)
         .write(true)
-        .create(true)
         .open(TEMPLATE_FILE_NAME)?;
-    let mut templates = collect_template(&file)?;
-    let mut find = false;
-    for i in 0..templates.len() {
-        if templates[i].name == name {
-            find = true;
-            templates.remove(i);
-            break;
-        }
-    }
-    if !find {
-        println!("未找到名称为 {:?} 的模板", name);
-    } else {
-        println!("删除 {:?} 成功！", name);
-    }
+    let templates = collect_template(&file)?;
+    let ans = templates
+        .iter()
+        .filter(|f| f.name != name)
+        .collect::<Vec<_>>();
+    file.set_len(0)?;
+    serde_json::to_writer_pretty(file, &ans)?;
+    println!("删除 {:?} 成功！", name);
     Ok(())
 }
 
@@ -125,6 +119,7 @@ pub fn create_project_package(temp: &Template, project_name: &String) -> Result<
     let mut temp_dir = std::env::current_dir().unwrap();
     project_dir.push(&project_name);
     project_dir.push(TEMPLATE_PACKAGE_NAME);
+    temp_dir.push(TEMPLATE_DIR);
     temp_dir.push(&temp.name);
     temp_dir.push(TEMPLATE_PACKAGE_NAME);
     let file = fs::read_to_string(temp_dir)?;

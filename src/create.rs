@@ -3,6 +3,7 @@ use core::panic;
 use crate::{
     file::copy_dir,
     templates::{create_project_package, Template},
+    TEMPLATE_DIR,
 };
 use inquire::{error::InquireError, validator::Validation, Select, Text};
 
@@ -46,10 +47,11 @@ fn create_project(temp: Template) {
         Ok(name) => {
             let mut str_dir = std::env::current_dir().unwrap();
             let mut dest_dir = std::env::current_dir().unwrap();
+            str_dir.push(TEMPLATE_DIR);
             str_dir.push(&temp.name);
             dest_dir.push(&name);
             copy_dir(&str_dir, &dest_dir);
-            let _ = create_project_package(&temp, &name);
+            create_project_package(&temp, &name).unwrap();
             println!("完成");
         }
         Err(_) => panic!("程序终止！"),
