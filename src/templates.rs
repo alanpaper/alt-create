@@ -57,7 +57,7 @@ pub fn get_temp_root_path() -> PathBuf {
     temp_path
 }
 
-// 获取当前执行文件根目录
+// 获取当前配置文件
 pub fn get_temp_config_file() -> PathBuf {
     let mut path = get_temp_root_path();
     path.push(TEMPLATE_DIR);
