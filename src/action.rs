@@ -6,7 +6,7 @@ pub enum Action {
     Create,
     Register {
         #[structopt()]
-        name: String,
+        name: Option<String>,
     },
     Remove {
         #[structopt()]
@@ -26,4 +26,7 @@ pub struct CommandLineArgs {
 
     #[structopt(parse(from_os_str), short, long)]
     pub git_path: Option<PathBuf>,
+
+    #[structopt(short, long)]
+    pub temp_name: Option<String>,
 }

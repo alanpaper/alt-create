@@ -23,11 +23,20 @@ pub struct Template {
 }
 
 impl Template {
-    pub fn new(git_path: PathBuf, name: String, color: String) -> Template {
+    pub fn new(git_path: PathBuf, name: Option<String>, color: String) -> Template {
         let create_at: DateTime<Utc> = Utc::now();
+        if let Some(name) = name {
+            return Template {
+                git_path,
+                name,
+                color,
+                create_at,
+            };
+        }
+        let temp_name = get_project_name(&git_path);
         Template {
             git_path,
-            name,
+            name: temp_name.unwrap(),
             color,
             create_at,
         }
@@ -91,12 +100,6 @@ pub fn get_list_template() -> Result<Vec<Template>> {
     if templates.is_empty() {
         println!("暂未注册相关模板!");
         return Ok(vec![]);
-    } else {
-        let mut order: u32 = 1;
-        for task in &templates {
-            println!("{}: {:?}", order, task);
-            order += 1;
-        }
     }
     Ok(templates)
 }
@@ -133,4 +136,11 @@ impl fmt::Display for Template {
         let created_at = self.create_at.with_timezone(&Local).format("%F %H:%M");
         write!(f, "{:<50} {:?} [{}]", self.name, self.git_path, created_at)
     }
+}
+
+fn get_project_name(git_link: &PathBuf) -> Option<String> {
+    let re = Regex::new(r"(?<=git@|https?://)[^/]*(/.*)").unwrap();
+    let captures = re.captures(git_link.to_str()?)?;
+    let temp_name = captures.get(1)?.as_str();
+    Some(String::from(temp_name))
 }
