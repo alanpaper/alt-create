@@ -34,8 +34,7 @@ pub fn check_create_dir(dir: &str) {
 }
 
 pub fn check_remove_dir(dir: &str) {
-    println!("{:?}=====dir", dir);
     if Path::new(dir).exists() {
-        remove_dir_all(dir).expect("删除原模板目录");
+        remove_dir_all(dir).expect("删除原模板目录失败");
     }
 }

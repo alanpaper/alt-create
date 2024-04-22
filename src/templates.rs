@@ -138,10 +138,6 @@ fn clone_template_local(template: &Template) {
         git_pull_template(git_path, &template.name);
     }
     if let Some(temp_path) = &template.temp_path {
-        let mut temp_dir = std::env::current_dir().unwrap();
-        check_create_dir(&template.name);
-        temp_dir.push(TEMPLATE_DIR);
-        temp_dir.push(&template.name);
         copy_dir(&temp_path, &temp_dir);
     }
 }
