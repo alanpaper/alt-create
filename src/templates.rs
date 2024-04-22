@@ -1,19 +1,18 @@
 use chrono::{serde::ts_seconds, DateTime, Local, Utc};
-use regex::Regex;
 use serde::Deserialize;
 use serde::Serialize;
 
 use std::fmt;
-use std::fs;
 use std::fs::{File, OpenOptions};
 use std::io::{Result, Seek, SeekFrom};
 use std::path::PathBuf;
 
 use crate::command::git_pull_template;
-use crate::file::create_temp_dir;
+use crate::file::check_create_dir;
+use crate::file::check_remove_dir;
+use crate::file::copy_dir;
 use crate::TEMPLATE_DIR;
 use crate::TEMPLATE_FILE_NAME;
-use crate::TEMPLATE_PACKAGE_NAME;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Template {
@@ -45,7 +44,7 @@ impl Template {
 }
 
 pub fn register_template(template: &Template) -> Result<()> {
-    create_temp_dir();
+    check_create_dir(TEMPLATE_DIR);
     let file = OpenOptions::new()
         .read(true)
         .write(true)
@@ -55,10 +54,7 @@ pub fn register_template(template: &Template) -> Result<()> {
     templates.push(template.clone());
     serde_json::to_writer_pretty(file, &templates)?;
     println!("{} 模板完成注册", template.name);
-
-    if let Some(git_path) = &template.git_path {
-        git_pull_template(git_path, &template.name);
-    }
+    clone_template_local(template);
     Ok(())
 }
 
@@ -75,6 +71,25 @@ pub fn remove_template(name: String) -> Result<()> {
     file.set_len(0)?;
     serde_json::to_writer_pretty(file, &ans)?;
     println!("删除 {:?} 成功！", name);
+    Ok(())
+}
+
+pub fn update_template(name: String) -> Result<()> {
+    let file = OpenOptions::new().read(true).open(TEMPLATE_FILE_NAME)?;
+    let templates = collect_template(&file)?;
+    let temp = templates.iter().find(|f| f.name == name);
+    if let Some(temp) = temp {
+        clone_template_local(temp);
+    }
+    Ok(())
+}
+
+pub fn update_all_template() -> Result<()> {
+    let file = OpenOptions::new().read(true).open(TEMPLATE_FILE_NAME)?;
+    let templates = collect_template(&file)?;
+    for temp in templates {
+        clone_template_local(&temp);
+    }
     Ok(())
 }
 
@@ -114,21 +129,21 @@ pub fn collect_template(mut file: &File) -> Result<Vec<Template>> {
     Ok(templates)
 }
 
-pub fn create_project_package(temp: &Template, project_name: &String) -> Result<()> {
-    let mut project_dir = std::env::current_dir().unwrap();
+fn clone_template_local(template: &Template) {
     let mut temp_dir = std::env::current_dir().unwrap();
-    project_dir.push(&project_name);
-    project_dir.push(TEMPLATE_PACKAGE_NAME);
     temp_dir.push(TEMPLATE_DIR);
-    temp_dir.push(&temp.name);
-    temp_dir.push(TEMPLATE_PACKAGE_NAME);
-    let file = fs::read_to_string(temp_dir)?;
-    let re = Regex::new(r#"\"name\": \"(.*?)\""#).unwrap();
-    let result = re
-        .replace(&file, format!("\"name\": \"{}\"", project_name))
-        .to_string();
-    let _ = fs::write(project_dir, result);
-    Ok(())
+    temp_dir.push(&template.name);
+    check_remove_dir(temp_dir.to_str().unwrap());
+    if let Some(git_path) = &template.git_path {
+        git_pull_template(git_path, &template.name);
+    }
+    if let Some(temp_path) = &template.temp_path {
+        let mut temp_dir = std::env::current_dir().unwrap();
+        check_create_dir(&template.name);
+        temp_dir.push(TEMPLATE_DIR);
+        temp_dir.push(&template.name);
+        copy_dir(&temp_path, &temp_dir);
+    }
 }
 
 impl fmt::Display for Template {

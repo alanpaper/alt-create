@@ -17,6 +17,11 @@ pub enum Action {
     },
     #[structopt(name = "list", about = "打印已注册模板")]
     List,
+    #[structopt(name = "update", about = "更新已缓存的模板")]
+    Update {
+        #[structopt()]
+        name: Option<String>,
+    },
 }
 
 #[derive(Debug, StructOpt)]

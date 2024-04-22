@@ -1,12 +1,9 @@
 use std::{
-    fs::{copy, create_dir, create_dir_all, read_dir},
+    fs::{copy, create_dir, create_dir_all, read_dir, remove_dir_all},
     path::{Path, PathBuf},
 };
 
-use crate::TEMPLATE_DIR;
-
 pub fn copy_dir(src_dir: &PathBuf, dest_dir: &PathBuf) {
-    println!("{:?}", src_dir);
     if !Path::new(&dest_dir).exists() {
         create_dir_all(&dest_dir).expect("创建目录失败");
     }
@@ -15,11 +12,9 @@ pub fn copy_dir(src_dir: &PathBuf, dest_dir: &PathBuf) {
         let mut src_file = src_dir.clone();
         let mut dest_file = dest_dir.clone();
         if let Ok(entry) = entry {
-            if entry.file_name() != "package.json" {
-                src_file.push(entry.file_name());
-                dest_file.push(entry.file_name());
-                copy_file(&src_file, &dest_file);
-            }
+            src_file.push(entry.file_name());
+            dest_file.push(entry.file_name());
+            copy_file(&src_file, &dest_file);
         }
     }
 }
@@ -32,8 +27,15 @@ pub fn copy_file(src: &PathBuf, dest: &PathBuf) {
     }
 }
 
-pub fn create_temp_dir() {
-    if !Path::new(TEMPLATE_DIR).exists() {
-        create_dir(TEMPLATE_DIR).expect("创建temp目录失败");
+pub fn check_create_dir(dir: &str) {
+    if !Path::new(dir).exists() {
+        create_dir(dir).expect("创建temp目录失败");
+    }
+}
+
+pub fn check_remove_dir(dir: &str) {
+    println!("{:?}=====dir", dir);
+    if Path::new(dir).exists() {
+        remove_dir_all(dir).expect("删除原模板目录");
     }
 }
