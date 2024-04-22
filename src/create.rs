@@ -20,12 +20,7 @@ pub fn init(templates: Vec<Template>) {
 
     match select_template {
         Ok(name) => {
-            let mut temp: Option<Template> = None;
-            for t in templates {
-                if t.name == name {
-                    temp = Some(t);
-                }
-            }
+            let temp = templates.iter().find(|t| t.name == name);
             if let Some(temp) = temp {
                 create_project(temp).unwrap();
             }
@@ -34,7 +29,7 @@ pub fn init(templates: Vec<Template>) {
     }
 }
 
-fn create_project(temp: Template) -> Result<(), ()> {
+fn create_project(temp: &Template) -> Result<(), ()> {
     let validator = |input: &str| {
         if input.chars().count() > 140 {
             Ok(Validation::Invalid("项目名称最多140个字符".into()))
