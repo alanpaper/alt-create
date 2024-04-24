@@ -4,6 +4,8 @@ use serde::Serialize;
 
 use std::fmt;
 use std::fs::{File, OpenOptions};
+use std::io::Error;
+use std::io::ErrorKind;
 use std::io::{Result, Seek, SeekFrom};
 use std::path::PathBuf;
 
@@ -134,11 +136,14 @@ pub fn list_template() -> Result<()> {
 }
 
 pub fn get_list_template() -> Result<Vec<Template>> {
-    let file = OpenOptions::new().read(true).open(get_temp_config_file())?;
+    let file = OpenOptions::new()
+        .read(true)
+        .write(true)
+        .create(true)
+        .open(get_temp_config_file())?;
     let templates = collect_template(&file)?;
     if templates.is_empty() {
-        println!("暂未注册相关模板!");
-        return Ok(vec![]);
+        return Err(Error::new(ErrorKind::Other, "暂未注册任何模板!"));
     }
     Ok(templates)
 }

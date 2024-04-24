@@ -22,7 +22,7 @@ fn main() -> Result<(), anyhow::Error> {
     } = CommandLineArgs::from_args();
 
     match action {
-        Create => create::init(templates::get_list_template().unwrap()),
+        Create => create::init(templates::get_list_template()?),
         Register { name } => {
             let temp = Template::new(git_path, temp_path, name, "blue".to_owned());
             templates::register_template(&temp)?;
