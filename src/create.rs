@@ -1,35 +1,30 @@
-use core::panic;
 use std::{
     fs::{self, read_to_string},
     path::Path,
 };
 
-use crate::{
-    file::copy_dir,
-    templates::{get_temp_root_path, Template},
-    DEFAULT_PROJECT_NAME, TEMPLATE_DIR, TEMPLATE_PACKAGE_NAME,
-};
+use crate::{alter::{Alter, DEFAULT_PROJECT_NAME, TEMPLATE_PACKAGE_NAME}, file::copy_dir, templates::Template};
 use inquire::{error::InquireError, validator::Validation, Select, Text};
 use regex::Regex;
 
-pub fn init(templates: Vec<Template>) {
+pub fn init(templates: Vec<Template>, alter: &Alter) {
+    let temp = select_template(&templates).unwrap();
+    let project_name = input_project_name().unwrap();
+    create_project(&temp, &project_name, alter);
+    generate_project_package(&temp, &project_name, alter);
+}
+
+fn select_template(templates: &Vec<Template>) -> Result<Template, InquireError> {
     let template_names = templates.iter().map(|t| t.name.clone()).collect::<Vec<_>>();
-
-    let select_template: Result<String, InquireError> =
-        Select::new("请选择模板", template_names).prompt();
-
-    match select_template {
-        Ok(name) => {
-            let temp = templates.iter().find(|t| t.name == name);
-            if let Some(temp) = temp {
-                create_project(temp).unwrap();
-            }
-        }
-        Err(_) => println!("未选择模板"),
+    let temp_name = Select::new("请选择模板", template_names).prompt()?;
+    let temp = templates.iter().find(|t| t.name == temp_name);
+    match temp {
+        Some(temp) => Ok(temp.clone()),
+        None => Err(InquireError::NotTTY),
     }
 }
 
-fn create_project(temp: &Template) -> Result<(), ()> {
+fn input_project_name() -> Result<String, InquireError> {
     let validator = |input: &str| {
         if input.chars().count() > 140 {
             Ok(Validation::Invalid("项目名称最多140个字符".into()))
@@ -37,42 +32,28 @@ fn create_project(temp: &Template) -> Result<(), ()> {
             Ok(Validation::Valid)
         }
     };
-
-    let input_project_name = Text::new("请输入项目名")
+    let input_name: Result<String, InquireError> = Text::new("请输入项目名")
         .with_default(DEFAULT_PROJECT_NAME)
         .with_validator(validator)
         .prompt();
-
-    match input_project_name {
-        Ok(name) => Ok({
-            let mut temp_dir = get_temp_root_path();
-            let mut dest_dir = std::env::current_dir().unwrap();
-            temp_dir.push(TEMPLATE_DIR);
-            temp_dir.push(&temp.name);
-            dest_dir.push(&name);
-            copy_dir(&temp_dir, &dest_dir);
-            create_project_package(&temp, &name).unwrap();
-            println!("创建完成");
-        }),
-        Err(_) => panic!("程序终止！"),
-    }
+    input_name
 }
 
-fn create_project_package(temp: &Template, project_name: &String) -> Result<(), ()> {
-    let mut project_dir = std::env::current_dir().unwrap();
-    let mut pkg_path = get_temp_root_path();
-    project_dir.push(&project_name);
-    project_dir.push(TEMPLATE_PACKAGE_NAME);
-    pkg_path.push(TEMPLATE_DIR);
-    pkg_path.push(&temp.name);
-    pkg_path.push(TEMPLATE_PACKAGE_NAME);
+fn create_project(temp: &Template, name: &String, alter: &Alter) {
+    let temp_dir = alter.get_temp_file(&temp.name);
+    let dest_dir = alter.get_current_env_file(name);
+    copy_dir(&temp_dir, &dest_dir);
+}
+
+fn generate_project_package(temp: &Template, name: &String, alter: &Alter) {
+    let project_dir = alter.get_current_env_file(&format!("{}/{}", &name, TEMPLATE_PACKAGE_NAME));
+    let pkg_path = alter.get_temp_file(&format!("{}/{}", &temp.name, TEMPLATE_PACKAGE_NAME));
     if Path::new(&pkg_path).exists() {
         let file = read_to_string(pkg_path).unwrap();
         let re = Regex::new(r#"\"name\": \"(.*?)\""#).unwrap();
         let result = re
-            .replace(&file, format!("\"name\": \"{}\"", project_name))
+            .replace(&file, format!("\"name\": \"{}\"", name))
             .to_string();
         let _ = fs::write(project_dir, result);
     }
-    Ok(())
 }

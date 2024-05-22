@@ -45,4 +45,3 @@
   ```sh
     alt-create create
   ```
-

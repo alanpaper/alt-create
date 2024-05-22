@@ -4,17 +4,13 @@ use serde::Serialize;
 
 use std::fmt;
 use std::fs::{File, OpenOptions};
-use std::io::Error;
-use std::io::ErrorKind;
 use std::io::{Result, Seek, SeekFrom};
 use std::path::PathBuf;
 
+use crate::alter::Alter;
 use crate::command::git_pull_template;
-use crate::file::check_create_dir;
 use crate::file::check_remove_dir;
 use crate::file::copy_dir;
-use crate::TEMPLATE_DIR;
-use crate::TEMPLATE_FILE_NAME;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Template {
@@ -44,52 +40,26 @@ impl Template {
         }
     }
 }
-// 获取当前执行文件根目录
-pub fn get_temp_root_path() -> PathBuf {
-    let path = std::env::current_exe();
-    let mut temp_path = PathBuf::new();
-    match path {
-        Ok(path) => {
-            if let Some(parent) = path.parent() {
-                temp_path = parent.to_path_buf();
-            }
-        }
-        Err(_) => println!("获取temp保存目录出错"),
-    }
-    temp_path
-}
 
-// 获取当前配置文件
-pub fn get_temp_config_file() -> PathBuf {
-    let mut path = get_temp_root_path();
-    path.push(TEMPLATE_DIR);
-    check_create_dir(&path.to_str().unwrap());
-    path.push(TEMPLATE_FILE_NAME);
-    path
-}
-
-pub fn register_template(template: &Template) -> Result<()> {
-    let mut path = get_temp_root_path();
-    path.push(TEMPLATE_DIR);
-    check_create_dir(&path.to_str().unwrap());
+pub fn register_template(template: &Template, alter: &Alter) {
     let file = OpenOptions::new()
         .read(true)
         .write(true)
         .create(true)
-        .open(get_temp_config_file())?;
-    let mut templates = collect_template(&file)?;
+        .open(alter.get_temp_config_file())
+        .unwrap();
+    let mut templates = collect_template(&file).unwrap();
     templates.push(template.clone());
-    serde_json::to_writer_pretty(file, &templates)?;
+    serde_json::to_writer_pretty(file, &templates).unwrap();
     println!("{} 模板完成注册", template.name);
-    clone_template_local(template);
-    Ok(())
+    clone_template_local(template, alter);
 }
 
-pub fn remove_template(name: String) -> Result<()> {
+pub fn remove_template(name: String, alter: &Alter) -> Result<()> {
     let file = OpenOptions::new()
         .read(true)
         .write(true)
-        .open(get_temp_config_file())?;
+        .open(alter.get_temp_config_file())?;
     let templates = collect_template(&file)?;
     let ans = templates
         .iter()
@@ -101,27 +71,33 @@ pub fn remove_template(name: String) -> Result<()> {
     Ok(())
 }
 
-pub fn update_template(name: String) -> Result<()> {
-    let file = OpenOptions::new().read(true).open(get_temp_config_file())?;
+pub fn update_template(name: String, alter: &Alter) -> Result<()> {
+    let file = OpenOptions::new()
+        .read(true)
+        .open(alter.get_temp_config_file())?;
     let templates = collect_template(&file)?;
     let temp = templates.iter().find(|f| f.name == name);
     if let Some(temp) = temp {
-        clone_template_local(temp);
+        clone_template_local(temp, alter);
     }
     Ok(())
 }
 
-pub fn update_all_template() -> Result<()> {
-    let file = OpenOptions::new().read(true).open(get_temp_config_file())?;
+pub fn update_all_template(alter: &Alter) -> Result<()> {
+    let file = OpenOptions::new()
+        .read(true)
+        .open(alter.get_temp_config_file())?;
     let templates = collect_template(&file)?;
     for temp in templates {
-        clone_template_local(&temp);
+        clone_template_local(&temp, alter);
     }
     Ok(())
 }
 
-pub fn list_template() -> Result<()> {
-    let file = OpenOptions::new().read(true).open(get_temp_config_file())?;
+pub fn list_template(alter: &Alter) -> Result<()> {
+    let file = OpenOptions::new()
+        .read(true)
+        .open(alter.get_temp_config_file())?;
     let templates = collect_template(&file)?;
     if templates.is_empty() {
         println!("暂未注册相关模板!")
@@ -135,17 +111,15 @@ pub fn list_template() -> Result<()> {
     Ok(())
 }
 
-pub fn get_list_template() -> Result<Vec<Template>> {
+pub fn get_list_template(alter: &Alter) -> Vec<Template> {
     let file = OpenOptions::new()
         .read(true)
         .write(true)
         .create(true)
-        .open(get_temp_config_file())?;
-    let templates = collect_template(&file)?;
-    if templates.is_empty() {
-        return Err(Error::new(ErrorKind::Other, "暂未注册任何模板!"));
-    }
-    Ok(templates)
+        .open(alter.get_temp_config_file())
+        .unwrap();
+    let templates = collect_template(&file).unwrap();
+    templates
 }
 
 pub fn collect_template(mut file: &File) -> Result<Vec<Template>> {
@@ -159,13 +133,11 @@ pub fn collect_template(mut file: &File) -> Result<Vec<Template>> {
     Ok(templates)
 }
 
-fn clone_template_local(template: &Template) {
-    let mut temp_dir = get_temp_root_path();
-    temp_dir.push(TEMPLATE_DIR);
-    temp_dir.push(&template.name);
+fn clone_template_local(template: &Template, alter: &Alter) {
+    let temp_dir = alter.get_temp_file(&template.name);
     check_remove_dir(temp_dir.to_str().unwrap());
     if let Some(git_path) = &template.git_path {
-        git_pull_template(git_path, &template.name);
+        git_pull_template(git_path, &template.name, alter);
     }
     if let Some(temp_path) = &template.temp_path {
         copy_dir(&temp_path, &temp_dir);

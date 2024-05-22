@@ -1,10 +1,10 @@
 use std::{path::PathBuf, process::Command};
 
-use crate::{templates::get_temp_root_path, TEMPLATE_DIR};
+use crate::alter::{Alter, TEMPLATE_DIR};
 
-pub fn git_pull_template(git_path: &PathBuf, temp_name: &String) {
+pub fn git_pull_template(git_path: &PathBuf, temp_name: &String, alter: &Alter) {
     let mut command = Command::new("git");
-    let mut temp_dir = get_temp_root_path();
+    let mut temp_dir = alter.temp_root_path.clone();
     temp_dir.push(TEMPLATE_DIR);
     command
         .current_dir(temp_dir)
