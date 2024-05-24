@@ -134,4 +134,30 @@ pub fn read_temp_html() {
         path.push(doc.title.clone() + ".html");
         fs::write(path, ans).unwrap();
     }
+
+    write_html_file(String::from("about"));
+}
+
+pub fn write_html_file(file_name: String) {
+    let style_file = read_to_string("template/base.css").unwrap();
+    let css_str = format!("<style>{}</style>", style_file);
+    let mut dir_temp = PathBuf::from("template");
+    dir_temp.push(format!("{}.html", file_name));
+    let temp_file = read_to_string(dir_temp).unwrap();
+
+    let mut ans = temp_file.replace("{{title}}", &file_name);
+    ans = ans.replace("<style></style>", &css_str);
+
+    let mut dir_content = PathBuf::from("doc/doc");
+    dir_content.push(format!("{}.md", file_name));
+    let file_content = read_to_string(dir_content);
+    match file_content {
+        Ok(content) => {
+            ans = ans.replace("{{content}}", &markdown::to_html(&content));
+        }
+        Err(_) => println!("{}.md content file", file_name),
+    }
+    let mut path = PathBuf::from("web");
+    path.push(file_name + ".html");
+    fs::write(path, ans).unwrap();
 }
