@@ -3,6 +3,7 @@ use std::{
     path::PathBuf,
 };
 
+use chrono::{serde::ts_seconds, DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 const SPLIT_SYSBOL: &str = "<!-- -----split----- -->";
@@ -14,6 +15,8 @@ pub struct DocBaseInfo {
     pub tags: String,
     pub outstanding: bool,
     pub content: String,
+    #[serde(with = "ts_seconds")]
+    pub create_at: DateTime<Utc>,
 }
 
 impl DocBaseInfo {
@@ -24,12 +27,14 @@ impl DocBaseInfo {
         outstanding: bool,
         content: String,
     ) -> DocBaseInfo {
+        let create_at: DateTime<Utc> = Utc::now();
         DocBaseInfo {
             title: title.to_string(),
             category: category.to_string(),
             tags: tags.to_string(),
             outstanding: outstanding,
             content,
+            create_at: create_at,
         }
     }
 }
@@ -118,15 +123,14 @@ pub fn parse_doc_file() {
 
 pub fn read_temp_html() {
     let doc_list = DocInfoList::get_doc();
-    let temp_file = read_to_string("temp/index.html").unwrap();
-    println!(
-        "doc_list.doc_info_list.length = {}",
-        doc_list.doc_info_list.len()
-    );
+    let style_file = read_to_string("temp/base.css").unwrap();
+    let css_str = format!("<style>{}</style>", style_file);
+    let temp_file = read_to_string("temp/article.html").unwrap();
     for doc in doc_list.doc_info_list {
         let mut ans = temp_file.replace("{{title}}", &doc.title);
         ans = ans.replace("{{content}}", &doc.content);
-        let mut path = PathBuf::from("temp/html");
+        ans = ans.replace("<style></style>", &css_str);
+        let mut path = PathBuf::from("web/html");
         path.push(doc.title.clone() + ".html");
         fs::write(path, ans).unwrap();
     }
