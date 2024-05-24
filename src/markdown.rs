@@ -123,9 +123,9 @@ pub fn parse_doc_file() {
 
 pub fn read_temp_html() {
     let doc_list = DocInfoList::get_doc();
-    let style_file = read_to_string("temp/base.css").unwrap();
+    let style_file = read_to_string("template/base.css").unwrap();
     let css_str = format!("<style>{}</style>", style_file);
-    let temp_file = read_to_string("temp/article.html").unwrap();
+    let temp_file = read_to_string("template/article.html").unwrap();
     for doc in doc_list.doc_info_list {
         let mut ans = temp_file.replace("{{title}}", &doc.title);
         ans = ans.replace("{{content}}", &doc.content);
