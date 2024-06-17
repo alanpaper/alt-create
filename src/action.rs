@@ -3,21 +3,21 @@ use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
 pub enum Action {
-    #[structopt(name = "create", about = "根据已注册模板创建新项目")]
+    #[structopt(name = "create", about = "create new project by template")]
     Create,
-    #[structopt(name = "register", about = "注册模板")]
+    #[structopt(name = "register", about = "register template")]
     Register {
         #[structopt()]
         name: String,
     },
-    #[structopt(name = "remove", about = "删除已注册模板")]
+    #[structopt(name = "remove", about = "delete template")]
     Remove {
         #[structopt()]
         name: String,
     },
-    #[structopt(name = "list", about = "打印已注册模板")]
+    #[structopt(name = "list", about = "display template")]
     List,
-    #[structopt(name = "update", about = "更新已缓存的模板")]
+    #[structopt(name = "update", about = "update template by git or local")]
     Update {
         #[structopt()]
         name: Option<String>,

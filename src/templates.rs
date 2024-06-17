@@ -8,7 +8,7 @@ use std::io::{Result, Seek, SeekFrom};
 use std::path::PathBuf;
 
 use crate::alter::Alter;
-use crate::command::git_pull_template;
+use crate::command::git_clone_template;
 use crate::file::check_remove_dir;
 use crate::file::copy_dir;
 
@@ -51,7 +51,7 @@ pub fn register_template(template: &Template, alter: &Alter) {
     let mut templates = collect_template(&file).unwrap();
     templates.push(template.clone());
     serde_json::to_writer_pretty(file, &templates).unwrap();
-    println!("{} 模板完成注册", template.name);
+    println!("{} template register success", template.name);
     clone_template_local(template, alter);
 }
 
@@ -67,7 +67,7 @@ pub fn remove_template(name: String, alter: &Alter) -> Result<()> {
         .collect::<Vec<_>>();
     file.set_len(0)?;
     serde_json::to_writer_pretty(file, &ans)?;
-    println!("删除 {:?} 成功！", name);
+    println!("delete {:?} success！", name);
     Ok(())
 }
 
@@ -100,7 +100,7 @@ pub fn list_template(alter: &Alter) -> Result<()> {
         .open(alter.get_temp_config_file())?;
     let templates = collect_template(&file)?;
     if templates.is_empty() {
-        println!("暂未注册相关模板!")
+        println!("template is empty!")
     } else {
         let mut order: u32 = 1;
         for task in templates {
@@ -134,10 +134,11 @@ pub fn collect_template(mut file: &File) -> Result<Vec<Template>> {
 }
 
 fn clone_template_local(template: &Template, alter: &Alter) {
-    let temp_dir = alter.get_temp_file(&template.name);
+    let temp_dir =
+        alter.get_temp_file(&template.name.split('/').collect::<Vec<_>>()[0].to_string());
     check_remove_dir(temp_dir.to_str().unwrap());
     if let Some(git_path) = &template.git_path {
-        git_pull_template(git_path, &template.name, alter);
+        git_clone_template(git_path, &template.name, alter);
     }
     if let Some(temp_path) = &template.temp_path {
         copy_dir(&temp_path, &temp_dir);

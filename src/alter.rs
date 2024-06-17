@@ -12,7 +12,6 @@ pub const TEMPLATE_FILE_NAME: &str = "templates.json";
 pub const TEMPLATE_PACKAGE_NAME: &str = "package.json";
 pub const DEFAULT_PROJECT_NAME: &str = "alter-project";
 
-/// 项目初始化配置
 pub struct Alter {
     pub current_env_path: PathBuf,
     pub temp_root_path: PathBuf,
@@ -87,7 +86,6 @@ impl Alter {
     }
 }
 
-// 获取当前执行文件根目录
 fn get_temp_root_path() -> PathBuf {
     let path = std::env::current_exe();
     let mut temp_path = PathBuf::new();
@@ -97,7 +95,7 @@ fn get_temp_root_path() -> PathBuf {
                 temp_path = parent.to_path_buf();
             }
         }
-        Err(_) => println!("获取temp保存目录出错"),
+        Err(_) => println!("get temp dir error"),
     }
     temp_path
 }
