@@ -1,19 +1,19 @@
 use crate::action::Action::*;
 use crate::action::CommandLineArgs;
+use crate::config::{get_config, Config};
 use crate::file::check_create_dir;
+use crate::markdown::parse_md_file;
 use crate::templates::Template;
 use crate::{create, templates};
 use std::path::PathBuf;
 use std::result::Result::Ok as ResultOk;
 use structopt::StructOpt;
 
-pub const TEMPLATE_DIR: &str = "temp";
-pub const TEMPLATE_FILE_NAME: &str = "templates.json";
 pub const TEMPLATE_PACKAGE_NAME: &str = "package.json";
-pub const DEFAULT_PROJECT_NAME: &str = "alter-project";
 
 pub struct Alter {
     pub current_env_path: PathBuf,
+    pub config: Config,
     pub temp_root_path: PathBuf,
 }
 
@@ -21,9 +21,10 @@ impl Alter {
     pub fn new() -> Alter {
         let temp_root_path = get_temp_root_path();
         let current_env_path = std::env::current_dir().unwrap();
-
+        let config = get_config(&temp_root_path);
         Alter {
             current_env_path,
+            config,
             temp_root_path,
         }
     }
@@ -47,19 +48,20 @@ impl Alter {
                     templates::update_all_template(&self).unwrap();
                 }
             }
+            Markdown { name } => parse_md_file(name, &self),
         };
     }
 
     // get TEMPLATE_FILE_NAME path
     pub fn get_temp_config_file(&self) -> PathBuf {
-        let temp_path = self.temp_root_path.join(TEMPLATE_DIR);
+        let temp_path = self.temp_root_path.join(&self.config.template_dir);
         check_create_dir(&temp_path.to_str().unwrap());
-        temp_path.join(TEMPLATE_FILE_NAME)
+        temp_path.join(&self.config.template_config_file)
     }
 
     // get template file path
     pub fn get_temp_file(&self, temp_file_path: &String) -> PathBuf {
-        let temp_path = self.temp_root_path.join(TEMPLATE_DIR);
+        let temp_path = self.temp_root_path.join(&self.config.template_dir);
         check_create_dir(&temp_path.to_str().unwrap());
         temp_path.join(temp_file_path)
     }

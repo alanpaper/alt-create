@@ -1,0 +1,5 @@
+{
+  "template_dir": "temp",
+  "template_config_file": "templates.json",
+  "default_project_name": "alter-project"
+}

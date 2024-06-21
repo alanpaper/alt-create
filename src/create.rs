@@ -4,7 +4,7 @@ use std::{
 };
 
 use crate::{
-    alter::{Alter, DEFAULT_PROJECT_NAME, TEMPLATE_PACKAGE_NAME},
+    alter::{Alter, TEMPLATE_PACKAGE_NAME},
     command::git_pull_template,
     file::copy_dir,
     templates::Template,
@@ -17,7 +17,7 @@ pub fn init(templates: Vec<Template>, alter: &Alter) {
     if !temp.git_path.is_none() {
         git_pull_template(&temp.name, alter);
     }
-    let project_name = input_project_name().unwrap();
+    let project_name = input_project_name(alter).unwrap();
     create_project(&temp, &project_name, alter);
     generate_project_package(&temp, &project_name, alter);
 }
@@ -32,7 +32,7 @@ fn select_template(templates: &Vec<Template>) -> Result<Template, InquireError> 
     }
 }
 
-fn input_project_name() -> Result<String, InquireError> {
+fn input_project_name(alter: &Alter) -> Result<String, InquireError> {
     let validator = |input: &str| {
         if input.chars().count() > 140 {
             Ok(Validation::Invalid("more 140 chars".into()))
@@ -41,7 +41,7 @@ fn input_project_name() -> Result<String, InquireError> {
         }
     };
     let input_name: Result<String, InquireError> = Text::new("input project name")
-        .with_default(DEFAULT_PROJECT_NAME)
+        .with_default(&alter.config.default_project_name)
         .with_validator(validator)
         .prompt();
     input_name

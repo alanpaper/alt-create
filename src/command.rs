@@ -1,11 +1,11 @@
 use std::{path::PathBuf, process::Command};
 
-use crate::alter::{Alter, TEMPLATE_DIR};
+use crate::alter::Alter;
 
 pub fn git_clone_template(git_path: &PathBuf, temp_name: &String, alter: &Alter) {
     let mut command = Command::new("git");
     let mut temp_dir = alter.temp_root_path.clone();
-    temp_dir.push(TEMPLATE_DIR);
+    temp_dir.push(&alter.config.template_dir);
     command
         .current_dir(temp_dir)
         .arg("clone")
@@ -19,7 +19,7 @@ pub fn git_clone_template(git_path: &PathBuf, temp_name: &String, alter: &Alter)
 pub fn git_pull_template(temp_name: &String, alter: &Alter) {
     let mut command = Command::new("git");
     let mut temp_dir = alter.temp_root_path.clone();
-    temp_dir.push(TEMPLATE_DIR);
+    temp_dir.push(&alter.config.template_dir);
     temp_dir.push(temp_name.split('/').collect::<Vec<_>>()[0]);
     command
         .current_dir(temp_dir)

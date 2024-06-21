@@ -22,6 +22,11 @@ pub enum Action {
         #[structopt()]
         name: Option<String>,
     },
+    #[structopt(name = "markdown", about = "parse markdown file in current dir")]
+    Markdown {
+        #[structopt()]
+        name: Option<String>,
+    },
 }
 
 #[derive(Debug, StructOpt)]

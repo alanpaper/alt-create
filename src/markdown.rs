@@ -1,10 +1,12 @@
 use std::{
     fs::{read_dir, read_to_string, OpenOptions},
-    path::PathBuf,
+    path::{Path, PathBuf},
 };
 
 use chrono::{serde::ts_seconds, DateTime, Utc};
 use serde::{Deserialize, Serialize};
+
+use crate::alter::Alter;
 
 const SPLIT_SYSBOL: &str = "<!-- -----split----- -->";
 
@@ -14,6 +16,7 @@ pub struct DocBaseInfo {
     pub category: String,
     pub tags: String,
     pub outstanding: bool,
+    pub content_html: String,
     pub content: String,
     #[serde(with = "ts_seconds")]
     pub create_at: DateTime<Utc>,
@@ -26,6 +29,7 @@ impl DocBaseInfo {
         tags: &str,
         outstanding: bool,
         content: String,
+        content_html: String,
     ) -> DocBaseInfo {
         let create_at: DateTime<Utc> = Utc::now();
         DocBaseInfo {
@@ -34,6 +38,7 @@ impl DocBaseInfo {
             tags: tags.to_string(),
             outstanding: outstanding,
             content,
+            content_html,
             create_at: create_at,
         }
     }
@@ -51,10 +56,13 @@ impl DocInfoList {
         }
     }
 
-    pub fn get_doc() -> DocInfoList {
-        let doc_dir_path = PathBuf::from("doc/doc");
+    pub fn get_doc(alter: &Alter) -> DocInfoList {
+        let doc_dir_path = &alter.current_env_path;
         let mut info_list = vec![];
         DocInfoList::read_doc_dir(&mut info_list, &doc_dir_path);
+        if info_list.is_empty() {
+            println!("not find markdown file in current dir");
+        }
         DocInfoList {
             doc_info_list: info_list,
         }
@@ -75,14 +83,21 @@ impl DocInfoList {
         if file_path.is_dir() {
             DocInfoList::read_doc_dir(info_list, file_path);
         } else {
-            let doc_file = read_to_string(file_path).unwrap();
-            let doc: Vec<&str> = doc_file.split(SPLIT_SYSBOL).collect();
-            if doc.len() > 1 {
-                let doc_info = DocInfoList::parse_doc_info(doc[0], doc[1]);
-                info_list.push(doc_info);
-            } else {
-                let doc_info = DocInfoList::parse_doc_info("null", doc[0]);
-                info_list.push(doc_info);
+            match Path::new(file_path).extension() {
+                Some(extension) => {
+                    if extension.to_string_lossy() == "md" {
+                        let doc_file = read_to_string(file_path).unwrap();
+                        let doc: Vec<&str> = doc_file.split(SPLIT_SYSBOL).collect();
+                        if doc.len() > 1 {
+                            let doc_info = DocInfoList::parse_doc_info(doc[0], doc[1]);
+                            info_list.push(doc_info);
+                        } else {
+                            let doc_info = DocInfoList::parse_doc_info("null", doc[0]);
+                            info_list.push(doc_info);
+                        }
+                    }
+                }
+                None => {}
             }
         }
     }
@@ -93,7 +108,6 @@ impl DocInfoList {
         let mut category = "";
         let mut tags = "";
         let mut outstanding = false;
-
         for item in info_list {
             let str_value: Vec<&str> = item.split(":").collect();
             if str_value[0] == "title" {
@@ -106,19 +120,29 @@ impl DocInfoList {
                 outstanding = true;
             }
         }
-
-        let content = markdown::to_html(content);
-        DocBaseInfo::new(title, category, tags, outstanding, content)
+        let content_html = markdown::to_html(content);
+        DocBaseInfo::new(
+            title,
+            category,
+            tags,
+            outstanding,
+            content.to_string(),
+            content_html,
+        )
     }
 }
 
-pub fn parse_doc_file() {
-    let doc_list = DocInfoList::get_doc();
+pub fn parse_md_file(name: Option<String>, alter: &Alter) {
+    let doc_list = DocInfoList::get_doc(alter);
+    let mut file_name = String::from("doc.json");
+    if let Some(n) = name {
+        file_name = format!("{}.json", n);
+    }
     let file = OpenOptions::new()
         .read(true)
         .write(true)
         .create(true)
-        .open("doc.json")
+        .open(file_name)
         .unwrap();
     serde_json::to_writer_pretty(file, &doc_list).unwrap();
 }
