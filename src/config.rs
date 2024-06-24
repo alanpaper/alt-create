@@ -28,7 +28,6 @@ impl Config {
 pub fn get_config(root_path: &PathBuf) -> Config {
     let mut config_path = root_path.clone();
     config_path.push(CONFIG_FILE);
-    println!("config_path = {:?}", config_path);
     let file = OpenOptions::new()
         .read(true)
         .write(true)
