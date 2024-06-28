@@ -4,15 +4,13 @@
 
 ### alt-create
 
-#### 使用方式
+#### use
 
 1. 拉取该项目文件
 2. 执行`cargo run -r`
 3. 创建alt-create文件夹
 4. 将`target/release/`下的`alt-create`文件复制到alt-create
 5. 添加alt-create可执行文件的环境变量
-
-    仅在mac环境下做过测试
 
 ### 功能
 
@@ -39,9 +37,23 @@
   ```sh
     alt-create update 可选：模板名称
   ```
-  不输入模板名称时更新全部
 
 #### 创建新项目
   ```sh
     alt-create create
+  ```
+
+#### 解析当前文件夹下的markdown文件
+
+  ```md
+    title: dome, 
+    category: dome, 
+    tags: dome,
+    outstanding: false,
+    <!-- -----split----- -->
+    // TODO content
+  ```
+
+  ```sh
+    alt-create markdown
   ```
