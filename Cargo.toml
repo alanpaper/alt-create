@@ -13,6 +13,8 @@ serde_json = "1.0"
 structopt = "0.3"
 regex = "1.10.4"
 markdown = "1.0.0-alpha.17"
+tokio = { version = "1.38.1", features = ["full"] }
+sqlx = { version = "0.7.4", features = ["runtime-tokio", "sqlite"] }
 
 [dependencies.chrono]
 features = ["serde"]

@@ -3,16 +3,19 @@ mod alter;
 mod command;
 mod config;
 mod create;
+mod database;
 mod file;
 mod markdown;
 mod templates;
 
 use alter::Alter;
 use anyhow::Ok;
+use database::open_db;
 
-fn main() -> Result<(), anyhow::Error> {
+#[tokio::main]
+async fn main() -> Result<(), anyhow::Error> {
     let alter = Alter::new();
     alter.init();
-
+    let _ = open_db().await;
     Ok(())
 }
