@@ -1,4 +1,4 @@
-use anyhow::{Context, Result};
+use anyhow::Result;
 use std::path::PathBuf;
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
@@ -88,7 +88,10 @@ pub async fn client(file_path: PathBuf, server_ip: &str) -> Result<()> {
 
     let total_time = start_time.elapsed().as_secs_f64();
     let avg_speed = (total_sent as f64) / (1024.0 * 1024.0) / total_time;
-    println!("File sent successfully! Average speed: {:.2} MB/s", avg_speed);
+    println!(
+        "File sent successfully! Average speed: {:.2} MB/s",
+        avg_speed
+    );
     Ok(())
 }
 
