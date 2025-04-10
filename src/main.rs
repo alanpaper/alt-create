@@ -7,6 +7,7 @@ mod database;
 mod file;
 mod markdown;
 mod templates;
+mod transmit;
 
 use alter::Alter;
 use anyhow::Ok;

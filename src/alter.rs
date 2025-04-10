@@ -4,6 +4,8 @@ use crate::config::{get_config, Config};
 use crate::file::check_create_dir;
 use crate::markdown::parse_md_file;
 use crate::templates::Template;
+use crate::transmit::client::client;
+use crate::transmit::server::server;
 use crate::{create, templates};
 use std::path::PathBuf;
 use std::result::Result::Ok as ResultOk;
@@ -29,9 +31,10 @@ impl Alter {
         }
     }
 
-    pub fn init(&self) {
+    pub async fn init(&self) {
         let CommandLineArgs {
             action,
+            ip,
             git_path,
             temp_path,
         } = CommandLineArgs::from_args();
@@ -49,6 +52,16 @@ impl Alter {
                 }
             }
             Markdown { name } => parse_md_file(name, &self),
+            Transmit { file_path } => {
+                if let Some(ip) = ip {
+                    let _ = client(file_path.into(), &ip).await;
+                } else {
+                    println!("请传入ip");
+                }
+            }
+            TransmitServer => {
+                let _ = server().await;
+            }
         };
     }
 

@@ -27,6 +27,13 @@ pub enum Action {
         #[structopt()]
         name: Option<String>,
     },
+    #[structopt(name = "transmit", about = "传输文件")]
+    Transmit {
+        #[structopt()]
+        file_path: String,
+    },
+    #[structopt(name = "transmit-server", about = "传输文件服务")]
+    TransmitServer,
 }
 
 #[derive(Debug, StructOpt)]
@@ -40,6 +47,9 @@ pub struct CommandLineArgs {
 
     #[structopt(parse(from_os_str), short, long)]
     pub git_path: Option<PathBuf>,
+
+    #[structopt(short, long)]
+    pub ip: Option<String>,
 
     #[structopt(short, long)]
     pub temp_path: Option<PathBuf>,
