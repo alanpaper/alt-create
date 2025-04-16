@@ -39,8 +39,6 @@ impl Alter {
             temp_path,
         } = CommandLineArgs::parse();
 
-        println!("action = {:?}", CommandLineArgs::parse());
-
         match action {
             Create => self.alter_create(),
             Register { name } => self.alter_register(git_path, temp_path, name),
