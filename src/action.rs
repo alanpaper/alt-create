@@ -12,7 +12,7 @@ pub enum Action {
     },
     #[clap(name = "remove", about = "delete template")]
     Remove {
-        #[structopt()]
+        #[clap()]
         name: String,
     },
     #[clap(name = "list", about = "display template")]
