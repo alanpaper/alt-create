@@ -5,34 +5,34 @@ use clap::Parser;
 pub enum Action {
     #[clap(name = "create", about = "create new project by template")]
     Create,
-    #[structopt(name = "register", about = "register template")]
+    #[clap(name = "register", about = "register template")]
     Register {
-        #[structopt()]
+        #[clap()]
         name: String,
     },
-    #[structopt(name = "remove", about = "delete template")]
+    #[clap(name = "remove", about = "delete template")]
     Remove {
         #[structopt()]
         name: String,
     },
-    #[structopt(name = "list", about = "display template")]
+    #[clap(name = "list", about = "display template")]
     List,
-    #[structopt(name = "update", about = "update template by git or local")]
+    #[clap(name = "update", about = "update template by git or local")]
     Update {
-        #[structopt()]
+        #[clap()]
         name: Option<String>,
     },
-    #[structopt(name = "markdown", about = "parse markdown file in current dir")]
+    #[clap(name = "markdown", about = "parse markdown file in current dir")]
     Markdown {
-        #[structopt()]
+        #[clap()]
         name: Option<String>,
     },
-    #[structopt(name = "transmit", about = "transmit file client")]
+    #[clap(name = "transmit", about = "transmit file client")]
     Transmit {
-        #[structopt()]
+        #[clap()]
         file_path: String,
     },
-    #[structopt(name = "transmit-server", about = "transmit file server")]
+    #[clap(name = "transmit-server", about = "transmit file server")]
     TransmitServer,
 }
 
