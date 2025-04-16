@@ -1,3 +1,4 @@
+use clap::Parser;
 use crate::action::Action::*;
 use crate::action::CommandLineArgs;
 use crate::config::{get_config, Config};
@@ -9,7 +10,6 @@ use crate::transmit::server::server;
 use crate::{create, templates};
 use std::path::PathBuf;
 use std::result::Result::Ok as ResultOk;
-use structopt::StructOpt;
 
 pub const TEMPLATE_PACKAGE_NAME: &str = "package.json";
 
@@ -37,7 +37,9 @@ impl Alter {
             ip,
             git_path,
             temp_path,
-        } = CommandLineArgs::from_args();
+        } = CommandLineArgs::parse();
+
+        println!("action = {:?}", CommandLineArgs::parse());
 
         match action {
             Create => self.alter_create(),

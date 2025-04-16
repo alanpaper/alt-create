@@ -1,9 +1,9 @@
 use std::path::PathBuf;
-use structopt::StructOpt;
+use clap::Parser;
 
-#[derive(Debug, StructOpt)]
+#[derive(Debug, Parser)]
 pub enum Action {
-    #[structopt(name = "create", about = "create new project by template")]
+    #[clap(name = "create", about = "create new project by template")]
     Create,
     #[structopt(name = "register", about = "register template")]
     Register {
@@ -36,21 +36,18 @@ pub enum Action {
     TransmitServer,
 }
 
-#[derive(Debug, StructOpt)]
-#[structopt(
-    name = "alt create cli",
-    about = "A command line cli app written in Rust"
-)]
+#[derive(Debug, Parser)]
+#[command(version, about, long_about = "A command line cli app written in Rust")]
 pub struct CommandLineArgs {
-    #[structopt(subcommand)]
+    #[clap(subcommand)]
     pub action: Action,
 
-    #[structopt(parse(from_os_str), short, long)]
+    #[clap(short, long)]
     pub git_path: Option<PathBuf>,
 
-    #[structopt(short, long)]
+    #[clap(short, long)]
     pub ip: Option<String>,
 
-    #[structopt(short, long)]
+    #[clap(short, long)]
     pub temp_path: Option<PathBuf>,
 }

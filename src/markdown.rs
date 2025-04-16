@@ -50,11 +50,11 @@ pub struct DocInfoList {
 }
 
 impl DocInfoList {
-    pub fn new(list: Vec<DocBaseInfo>) -> DocInfoList {
-        DocInfoList {
-            doc_info_list: list,
-        }
-    }
+    // pub fn new(list: Vec<DocBaseInfo>) -> DocInfoList {
+    //     DocInfoList {
+    //         doc_info_list: list,
+    //     }
+    // }
 
     pub fn get_doc(alter: &Alter) -> DocInfoList {
         let doc_dir_path = &alter.current_env_path;
