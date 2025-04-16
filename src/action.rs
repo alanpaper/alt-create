@@ -27,12 +27,12 @@ pub enum Action {
         #[structopt()]
         name: Option<String>,
     },
-    #[structopt(name = "transmit", about = "传输文件")]
+    #[structopt(name = "transmit", about = "transmit file client")]
     Transmit {
         #[structopt()]
         file_path: String,
     },
-    #[structopt(name = "transmit-server", about = "传输文件服务")]
+    #[structopt(name = "transmit-server", about = "transmit file server")]
     TransmitServer,
 }
 
