@@ -27,12 +27,13 @@ pub enum Action {
         #[clap()]
         name: Option<String>,
     },
-    #[clap(name = "transmit", about = "transmit file client")]
+    #[command(name = "transmit", about = "传输文件")]
     Transmit {
-        #[clap()]
         file_path: String,
+        #[arg(short, long)]
+        ip: String,
     },
-    #[clap(name = "transmit-server", about = "transmit file server")]
+    #[command(name = "transmit-server", about = "传输文件服务")]
     TransmitServer,
 }
 
@@ -44,9 +45,6 @@ pub struct CommandLineArgs {
 
     #[clap(short, long)]
     pub git_path: Option<PathBuf>,
-
-    #[clap(short, long)]
-    pub ip: Option<String>,
 
     #[clap(short, long)]
     pub temp_path: Option<PathBuf>,

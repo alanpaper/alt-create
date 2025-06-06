@@ -1,4 +1,5 @@
 use clap::Parser;
+use regex::Regex;
 use crate::action::Action::*;
 use crate::action::CommandLineArgs;
 use crate::config::{get_config, Config};
@@ -34,7 +35,6 @@ impl Alter {
     pub async fn init(&self) {
         let CommandLineArgs {
             action,
-            ip,
             git_path,
             temp_path,
         } = CommandLineArgs::parse();
@@ -52,13 +52,14 @@ impl Alter {
                 }
             }
             Markdown { name } => parse_md_file(name, &self),
-            Transmit { file_path } => {
-                if let Some(ip) = ip {
-                    let _ = client(file_path.into(), &ip).await;
+            Transmit { file_path, ip } => {
+                let r = Regex::new("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$").unwrap();
+                if !r.is_match(&ip) {
+                    println!("请传入正确的ip");
                 } else {
-                    println!("请传入ip");
+                    let _ = client(file_path.into(), &ip).await;
                 }
-            }
+            },
             TransmitServer => {
                 let _ = server().await;
             }
