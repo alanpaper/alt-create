@@ -8,23 +8,27 @@ on:
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # 明确添加写入权限
     steps:
-      - uses: actions/checkout@v4  # 检出代码
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 获取所有历史记录和标签
 
       - name: install Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          toolchain: stable  # 使用稳定版 Rust
+          toolchain: stable
 
       - name: build Release version
-        run: cargo build --release  # 编译发布版
+        run: cargo build --release
 
       - name: Release
-        uses: softprops/action-gh-release@v1  # 使用新版发布工具
+        uses: softprops/action-gh-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 自动生成的令牌
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref_name }}  # 使用触发工作流的标签名
-          name: build ${{ github.ref_name }}  # 发布标题
-          files: |  # 要上传的发布文件
+          tag_name: ${{ github.ref_name }}
+          name: build ${{ github.ref_name }}
+          files: |
             target/release/alt-create
