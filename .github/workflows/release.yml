@@ -32,5 +32,5 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           name: build ${{ github.ref_name }}
-          files: |
-            target/release/alt-create.exe  # Windows 可执行文件后缀是 .exe
+          files: |  
+            target/release/alt-create.exe
