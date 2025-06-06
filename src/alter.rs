@@ -2,7 +2,7 @@ use clap::Parser;
 use regex::Regex;
 use crate::action::Action::*;
 use crate::action::CommandLineArgs;
-use crate::config::{get_config, Config};
+use crate::config::{Config};
 use crate::file::check_create_dir;
 use crate::markdown::parse_md_file;
 use crate::templates::Template;
@@ -24,7 +24,7 @@ impl Alter {
     pub fn new() -> Alter {
         let temp_root_path = get_temp_root_path();
         let current_env_path = std::env::current_dir().unwrap();
-        let config = get_config(&temp_root_path);
+        let config = Config::new();
         Alter {
             current_env_path,
             config,
