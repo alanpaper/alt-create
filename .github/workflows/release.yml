@@ -7,20 +7,22 @@ on:
 
 jobs:
   build-and-release:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest  # 使用 Windows 环境
     permissions:
-      contents: write  # 明确添加写入权限
+      contents: write  # 确保有发布权限
+
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # 获取所有历史记录和标签
+          fetch-depth: 0  # 获取所有 Git 历史记录和标签
 
-      - name: install Rust
+      - name: Install Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           toolchain: stable
+          target: x86_64-pc-windows-msvc  # 明确指定 Windows 目标平台（可选）
 
-      - name: build Release version
+      - name: Build Release version
         run: cargo build --release
 
       - name: Release
@@ -31,4 +33,4 @@ jobs:
           tag_name: ${{ github.ref_name }}
           name: build ${{ github.ref_name }}
           files: |
-            target/release/alt-create
+            target/release/alt-create.exe  # Windows 可执行文件后缀是 .exe
