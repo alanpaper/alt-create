@@ -27,15 +27,17 @@ jobs:
 
       - name: Extract version from tag
         id: version
+        shell: pwsh  # 明确使用 PowerShell
         run: |
-          # 去除标签中的 'v' 前缀
-          version=${GITHUB_REF#refs/tags/v}
-          echo "version=$version" >> $GITHUB_OUTPUT
+          # 去除标签中的 'v' 前缀 (PowerShell 语法)
+          $version = $env:GITHUB_REF -replace 'refs/tags/v',''
+          echo "version=$version" >> $env:GITHUB_OUTPUT
 
       - name: Rename executable with version
+        shell: pwsh  # 明确使用 PowerShell
         run: |
           # 重命名文件以包含版本号
-          cp target/release/alt-create.exe "target/release/alt-create-v${{ steps.version.outputs.version }}.exe"
+          Copy-Item -Path "target/release/alt-create.exe" -Destination "target/release/alt-create-v${{ steps.version.outputs.version }}.exe"
 
       - name: Release
         uses: softprops/action-gh-release@v1
