@@ -57,3 +57,18 @@
   ```sh
     alt-create markdown
   ```
+
+
+#### 局域网文件传输
+
+1. 需要接受文件的设备 在需要接受文件的文件夹下执行
+
+  ```sh
+    alt-create transmit-server;
+  ```
+
+2. 另一台设备 执行
+
+  ```sh
+    alt-create transmit 文件路径 -ip 需要接受文件的ip地址;
+  ```
