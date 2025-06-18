@@ -3,6 +3,7 @@ use regex::Regex;
 use crate::action::Action::*;
 use crate::action::CommandLineArgs;
 use crate::config::{Config};
+use crate::dino::init_game;
 use crate::file::check_create_dir;
 use crate::markdown::parse_md_file;
 use crate::templates::Template;
@@ -62,6 +63,9 @@ impl Alter {
             },
             TransmitServer => {
                 let _ = server().await;
+            }
+            PlayGame => {
+                let _ = init_game();
             }
         };
     }

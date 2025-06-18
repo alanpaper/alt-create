@@ -7,6 +7,7 @@ mod file;
 mod markdown;
 mod templates;
 mod transmit;
+mod dino;
 
 use alter::Alter;
 use anyhow::Ok;

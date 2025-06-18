@@ -35,6 +35,8 @@ pub enum Action {
     },
     #[command(name = "transmit-server", about = "传输文件服务")]
     TransmitServer,
+    #[command(name = "play", about = "打开游戏")]
+    PlayGame,
 }
 
 #[derive(Debug, Parser)]
