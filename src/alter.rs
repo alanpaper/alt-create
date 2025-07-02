@@ -5,8 +5,9 @@ use crate::action::CommandLineArgs;
 use crate::alterai::alterai;
 use crate::config::{Config};
 use crate::db;
-use crate::dino::init_game;
 use crate::file::check_create_dir;
+use crate::game::dino;
+use crate::game::snake;
 use crate::markdown::parse_md_file;
 use crate::templates::Template;
 use crate::transmit::client::client;
@@ -67,8 +68,14 @@ impl Alter {
             TransmitServer => {
                 let _ = server().await;
             }
-            PlayGame => {
-                let _ = init_game();
+            PlayGame { game} => {
+                if game == "dino" {
+                    let _ = dino::init_game();
+                } else if game == "snake" {
+                    let _ = snake::init_game().await;
+                } else {
+                    println!("请传入正确的游戏名称");
+                }
             }
             Init { authorization } => {
                 let _ = db::init_db(authorization).await;

@@ -7,7 +7,7 @@ mod file;
 mod markdown;
 mod templates;
 mod transmit;
-mod dino;
+mod game;
 mod alterai;
 mod db;
 

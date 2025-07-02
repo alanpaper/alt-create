@@ -36,7 +36,9 @@ pub enum Action {
     #[command(name = "transmit-server", about = "传输文件服务")]
     TransmitServer,
     #[command(name = "play", about = "打开游戏")]
-    PlayGame,
+    PlayGame {
+        game: String,
+    },
     #[command(name = "init", about = "初始化deepseek翻译")]
     Init {
         #[arg(short, long)]

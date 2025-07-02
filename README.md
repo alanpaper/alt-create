@@ -61,7 +61,8 @@
 #### 添加小游戏
 
 ```
-  alt-create play;
+  alt-create play snake;
+  alt-create play dino;
 ```
 
 
