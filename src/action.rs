@@ -37,6 +37,15 @@ pub enum Action {
     TransmitServer,
     #[command(name = "play", about = "打开游戏")]
     PlayGame,
+    #[command(name = "init", about = "初始化deepseek翻译")]
+    Init {
+        #[arg(short, long)]
+        authorization: String,
+    },
+    Ask {
+        #[arg(short, long)]
+        question: String,
+    },
 }
 
 #[derive(Debug, Parser)]

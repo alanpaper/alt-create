@@ -2,7 +2,9 @@ use clap::Parser;
 use regex::Regex;
 use crate::action::Action::*;
 use crate::action::CommandLineArgs;
+use crate::alterai::alterai;
 use crate::config::{Config};
+use crate::db;
 use crate::dino::init_game;
 use crate::file::check_create_dir;
 use crate::markdown::parse_md_file;
@@ -40,6 +42,7 @@ impl Alter {
             temp_path,
         } = CommandLineArgs::parse();
 
+        let db = db::Database::new().await;
         match action {
             Create => self.alter_create(),
             Register { name } => self.alter_register(git_path, temp_path, name),
@@ -67,6 +70,16 @@ impl Alter {
             PlayGame => {
                 let _ = init_game();
             }
+            Init { authorization } => {
+                let _ = db::init_db(authorization).await;
+            }
+            Ask { question } => {
+                if let Ok(db) = db {
+                    let user = db.get_user().await.unwrap();
+                    let _ = alterai(question, user.authorization).await;
+                }
+            },
+
         };
     }
 

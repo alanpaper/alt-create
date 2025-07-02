@@ -72,3 +72,14 @@
   ```sh
     alt-create transmit 文件路径 -ip 需要接受文件的ip地址;
   ```
+
+#### 初始化deepseek翻译
+
+  ```sh
+    alt-create init deepseekAuthKey;
+  ```
+
+#### 翻译
+  ```sh
+    alt-create ask 测试;
+  ```
