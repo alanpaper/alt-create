@@ -58,6 +58,12 @@
     alt-create markdown
   ```
 
+#### 添加小游戏
+
+```
+  alt-create play;
+```
+
 
 #### 局域网文件传输
 
