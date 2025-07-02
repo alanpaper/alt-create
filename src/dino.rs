@@ -55,7 +55,7 @@ impl Dino {
     fn jump(&mut self) {
         if !self.jumping {
             self.jumping = true;
-            self.jump_velocity = -10.0;
+            self.jump_velocity = -3.0;
         }
     }
 
