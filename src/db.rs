@@ -3,7 +3,6 @@ use sqlx::{SqlitePool, sqlite::SqliteConnectOptions, query, query_as};
 
 #[derive(Debug, sqlx::FromRow)]
 pub struct User {
-    id: i32,
     pub authorization: String,
 }
 
