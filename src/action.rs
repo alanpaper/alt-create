@@ -48,6 +48,10 @@ pub enum Action {
         #[arg(short, long)]
         question: String,
     },
+    Read {
+        #[arg(short, long)]
+        name: String,
+    }
 }
 
 #[derive(Debug, Parser)]

@@ -10,13 +10,13 @@ mod transmit;
 mod game;
 mod alterai;
 mod db;
+mod epub;
 
 use alter::Alter;
 use anyhow::Ok;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
-
     let alter = Alter::new();
     alter.init().await;
     Ok(())

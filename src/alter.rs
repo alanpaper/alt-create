@@ -5,6 +5,7 @@ use crate::action::CommandLineArgs;
 use crate::alterai::alterai;
 use crate::config::{Config};
 use crate::db;
+use crate::epub::epub::print_book_info;
 use crate::file::check_create_dir;
 use crate::game::dino;
 use crate::game::snake;
@@ -13,6 +14,7 @@ use crate::templates::Template;
 use crate::transmit::client::client;
 use crate::transmit::server::server;
 use crate::{create, templates};
+use std::fs;
 use std::path::PathBuf;
 use std::result::Result::Ok as ResultOk;
 
@@ -22,15 +24,28 @@ pub struct Alter {
     pub current_env_path: PathBuf,
     pub config: Config,
     pub temp_root_path: PathBuf,
+    pub config_dir: PathBuf,
 }
 
-impl Alter {
+impl Alter { 
     pub fn new() -> Alter {
-        let temp_root_path = get_temp_root_path();
+
+        let config_dir = dirs::config_dir()
+            .unwrap_or_else(|| PathBuf::from("."))
+            .join("alt_create");
+
+        println!("{:?}", config_dir);
+
+        if !config_dir.exists() {
+            let _ = fs::create_dir_all(&config_dir);
+        }
+
+        let temp_root_path = config_dir.clone();
         let current_env_path = std::env::current_dir().unwrap();
         let config = Config::new();
         Alter {
             current_env_path,
+            config_dir,
             config,
             temp_root_path,
         }
@@ -86,7 +101,10 @@ impl Alter {
                     let _ = alterai(question, user.authorization).await;
                 }
             },
-
+            Read { name } => {
+                let path = self.config_dir.join("books").join(name);
+                let _ = print_book_info(&path);
+            }
         };
     }
 
