@@ -1,17 +1,19 @@
 
-use std::path::PathBuf;
+use std::{fs::File, path::PathBuf};
+use serde::{Deserialize, Serialize};
 use terminal_size::{Width, terminal_size};
 use epub::doc::EpubDoc;
 use crate::epub::parse::convert_to_readable_text;
 
 pub struct EpubBook {
     pub doc: EpubDoc<std::io::BufReader<std::fs::File>>,
+    current_page: usize,
 }
 
 impl EpubBook {
-    pub fn new(path: &PathBuf) -> Result<Self, anyhow::Error> {
+    pub fn new(path: &PathBuf, current_page: usize) -> Result<Self, anyhow::Error> {
         let doc: EpubDoc<std::io::BufReader<std::fs::File>> = EpubDoc::new(path)?;
-        Ok(EpubBook { doc })
+        Ok(EpubBook { doc, current_page })
     }
     
     pub fn mdata(&self, key: &str) -> Option<String> {
@@ -80,8 +82,42 @@ impl EpubBook {
 }
 
 
-pub fn print_book_info(path: &PathBuf) -> Result<(), anyhow::Error> {
-    let mut book = EpubBook::new(&path)?;
+pub fn print_book_info(path: &PathBuf, current_page: usize) -> Result<(), anyhow::Error> {
+    let mut book = EpubBook::new(&path, current_page)?;
     book.get_next_page();
     Ok(())
+}
+
+
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct EpubBookCache {
+    pub path: PathBuf,
+    pub name: String,
+    pub current_page: usize,
+}
+
+pub fn get_books_cache(name: &String, config_dir: &PathBuf) -> Result<EpubBookCache, ()>  {
+    let cache = config_dir.join("books").join("cache.json");
+    let config: Result<EpubBookCache, ()> = if cache.exists() {
+        let config_file = match File::open(&cache) {
+            Ok(file) => file,
+            _ => panic!("Failed to open config file"),
+        };
+        let ans:Result<Vec<EpubBookCache>, serde_json::Error> = serde_json::from_reader(config_file);
+        match ans {
+            Ok(config) => {
+                for book in config.iter() {
+                    if book.name.contains(name) {
+                        return Ok(book.clone());
+                    }
+                }
+                Err(())
+            }
+            _ => Err(())
+        }
+    } else {
+        Err(())
+    };
+    config
 }

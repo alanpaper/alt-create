@@ -5,6 +5,7 @@ use crate::action::CommandLineArgs;
 use crate::alterai::alterai;
 use crate::config::{Config};
 use crate::db;
+use crate::epub::epub::get_books_cache;
 use crate::epub::epub::print_book_info;
 use crate::file::check_create_dir;
 use crate::game::dino;
@@ -15,6 +16,7 @@ use crate::transmit::client::client;
 use crate::transmit::server::server;
 use crate::{create, templates};
 use std::fs;
+use std::fs::File;
 use std::path::PathBuf;
 use std::result::Result::Ok as ResultOk;
 
@@ -102,8 +104,14 @@ impl Alter {
                 }
             },
             Read { name } => {
-                let path = self.config_dir.join("books").join(name);
-                let _ = print_book_info(&path);
+                let path = self.config_dir.join("books").join(&name);
+                let cache_path = self.config_dir.join("books").join("cache.json");
+                let cache = get_books_cache(&name, &cache_path);
+                let current_page = match cache {
+                    Ok(cache) => cache.current_page,
+                    Err(_) => 0,
+                };
+                let _ = print_book_info(&path, current_page);
             }
         };
     }
