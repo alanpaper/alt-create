@@ -16,8 +16,6 @@ impl HtmlDocument {
 
 }
 
-
-
 // 根据 MIME 类型处理数据
 pub fn convert_to_readable_text(data: &[u8], mime_type: &str) -> Result<Vec<String>, Box<dyn std::error::Error>> {
     match mime_type {

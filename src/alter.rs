@@ -103,14 +103,14 @@ impl Alter {
                 }
             },
             Read { name } => {
-                let path = self.config_dir.join("books").join(&name);
-                let cache_path = self.config_dir.join("books").join("cache.json");
-                let cache = get_books_cache(&name, &cache_path);
-                let current_page = match cache {
-                    Ok(cache) => cache.current_page,
-                    Err(_) => 0,
-                };
-                let _ = print_book_info(&path, current_page);
+                // let path = self.config_dir.join("books").join(&name);
+                // let cache_path = self.config_dir.join("books").join("cache.json");
+                // let cache = get_books_cache(&name, &cache_path);
+                // let current_page = match cache {
+                //     Ok(cache) => cache.current_page,
+                //     Err(_) => 0,
+                // };
+                // let _ = print_book_info(&path, current_page);
             }
         };
     }

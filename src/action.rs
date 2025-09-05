@@ -50,7 +50,7 @@ pub enum Action {
     },
     Read {
         #[arg(short, long)]
-        name: String,
+        name: Option<String>,
     }
 }
 

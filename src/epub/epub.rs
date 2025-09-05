@@ -79,6 +79,10 @@ impl EpubBook {
         }
     }
     
+
+    pub fn get_books(&self) {
+        // 获取目录下的所有 .epub 文件
+    }
 }
 
 
