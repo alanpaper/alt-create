@@ -16,7 +16,6 @@ use crate::transmit::client::client;
 use crate::transmit::server::server;
 use crate::{create, templates};
 use std::fs;
-use std::fs::File;
 use std::path::PathBuf;
 use std::result::Result::Ok as ResultOk;
 
