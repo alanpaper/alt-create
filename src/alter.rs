@@ -104,10 +104,10 @@ impl Alter {
                     let _ = alterai(question, user.authorization).await;
                 }
             },
-            Read { name } => {
+            Read => {
                 let path = self.config_dir.join("books");
                 let book = BookManager::new(&path);
-                main_loop(book).await;
+                let _ = main_loop(book).await;
             }
         };
     }

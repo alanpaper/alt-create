@@ -7,12 +7,13 @@ use crate::epub::{book::Book, parse::convert_to_readable_text};
 
 pub struct EpubBook {
     pub doc: EpubDoc<std::io::BufReader<std::fs::File>>,
+    pub book: Book,
 }
 
 impl EpubBook {
     pub fn new(book: &Book) -> Result<Self, anyhow::Error> {
         let doc: EpubDoc<std::io::BufReader<std::fs::File>> = EpubDoc::new(book.path.clone())?;
-        Ok(EpubBook { doc })
+        Ok(EpubBook { doc, book: book.clone() })
     }
     
     pub fn mdata(&self, key: &str) -> Option<String> {
@@ -32,12 +33,8 @@ impl EpubBook {
         progress.floor()
     }
 
-    pub fn get_battery_level(&self) -> f64 {
-        return 100.0;
-    }
-
     pub fn print_status(&self) {
-        println!("《{}》-- {}   [进度: {}%] [电量: {}%]",self.get_title(), self.get_creator(), self.get_progress(), self.get_battery_level());
+        println!("《{}》-- {}   [进度: {}%]",self.get_title(), self.get_creator(), self.get_progress());
         let width = self.terminal_size();
         println!("{}", "-".repeat(width.0 as usize));
     }
@@ -58,6 +55,8 @@ impl EpubBook {
 
     pub fn get_next_page(&mut self, next: usize) {
         self.doc.set_current_page(next);
+        self.book.set_current_page(next);
+        self.book.set_progress(self.get_progress());
         if let Some(id) = self.doc.get_current_id() {
             self.print_status();
             let source: Option<(Vec<u8>, String)> = self.doc.get_resource(&id);

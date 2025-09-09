@@ -1,7 +1,7 @@
 use std::io::{self, Write};
 use std::error::Error;
 
-use inquire::{InquireError, Select};
+use inquire::{Select};
 
 use crate::epub::book::BookManager;
 use crate::epub::command::handle_command;

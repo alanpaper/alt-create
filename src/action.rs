@@ -48,10 +48,7 @@ pub enum Action {
         #[arg(short, long)]
         question: String,
     },
-    Read {
-        #[arg(short, long)]
-        name: Option<String>,
-    }
+    Read
 }
 
 #[derive(Debug, Parser)]
