@@ -102,3 +102,11 @@
 
 1. 把epub文件复制到对应的操作系统下目录下 eg: linux放到 `/home/alice/.config/alt_create/books`
 2. 然后打开终端 运行`alt-create read`
+
+
+### 阅读器扩展
+1. 将书籍放到远程服务器
+2. 客户端获取书籍列表
+3. 书籍支持模糊查询
+4. 书籍下载到本地
+5. 阅读书籍 支持gpt或者deepseek实时翻译 可以选择翻译（中英或者英中）；
