@@ -30,6 +30,7 @@ impl Book {
 }
 
 pub struct BookManager {
+    pub path: PathBuf,
     pub current_book: Option<Book>,
     pub books: Vec<Book>,
 }
@@ -46,7 +47,7 @@ impl BookManager {
             panic!("No books found");
         }
 
-        BookManager { books, current_book: None }
+        BookManager { books, current_book: None, path: path.to_path_buf() }
     }
 
     fn init(path: &PathBuf) -> Vec<Book> {
@@ -66,8 +67,8 @@ impl BookManager {
         books
     }
 
-    pub fn update_books_json(&self, path: &PathBuf) {
-        let path = path.join("books.json");
+    pub fn update_books_json(&self) {
+        let path = &self.path.join("books.json");
         let file = OpenOptions::new()
             .read(true)
             .write(true)
@@ -103,6 +104,31 @@ impl BookManager {
 
     pub fn add_book(&mut self, book: Book) {
         self.books.push(book);
+    }
+
+    pub fn update_current_book(&mut self, book: Book) {
+        self.current_book = Some(book);
+        self.update_books();
+    }
+
+    pub fn update_books(&mut self) {
+        let mut ans = vec![];
+        if let Some(b) = &self.current_book {
+            for book in &self.books {
+                if book.name == b.name {
+                    ans.push(Book {
+                        progress: b.progress,
+                        current_page: b.current_page,
+                        name: b.name.clone(),
+                        path: b.path.clone(),
+                    })
+                } else {
+                    ans.push(book.clone());
+                }
+            }
+        }
+        self.books = ans;
+        self.update_books_json();
     }
 
     pub fn get_book(&self, index: usize) -> Option<&Book> {

@@ -7,9 +7,9 @@ use crate::epub::book::BookManager;
 use crate::epub::command::handle_command;
 use crate::epub::epub::EpubBook;
 
-pub async fn main_loop(manager: BookManager) -> Result<(), Box<dyn Error>> {
+pub async fn main_loop(manager:&mut BookManager) -> Result<(), Box<dyn Error>> {
     
-    let current_book = match manager.current_book {
+    let current_book = match &manager.current_book {
         Some(book) => book.clone(),
         None => {
             let template_names = manager.books.iter().map(|t| t.name.clone()).collect::<Vec<_>>();
@@ -32,7 +32,7 @@ pub async fn main_loop(manager: BookManager) -> Result<(), Box<dyn Error>> {
         let input = input.trim();
         
         if input.starts_with('/') {
-            if handle_command(&input[1..], &mut book)? {
+            if handle_command(&input[1..], &mut book, &current_book, manager)? {
                 break;
             }
             continue;

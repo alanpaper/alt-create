@@ -106,8 +106,8 @@ impl Alter {
             },
             Read => {
                 let path = self.config_dir.join("books");
-                let book = BookManager::new(&path);
-                let _ = main_loop(book).await;
+                let mut book = BookManager::new(&path);
+                let _ = main_loop(&mut book).await;
             }
         };
     }

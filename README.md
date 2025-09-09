@@ -66,7 +66,7 @@
 ```
 
 
-#### 局域网文件传输
+#### 文件传输
 
 1. 需要接受文件的设备 在需要接受文件的文件夹下执行
 
@@ -90,3 +90,15 @@
   ```sh
     alt-create ask 测试;
   ```
+
+
+
+#### 终端epub阅读器
+|Platform | Value                                 | Example                                  |
+| ------- | ------------------------------------- | ---------------------------------------- |
+| Linux   | `$XDG_CONFIG_HOME` or `$HOME`/.config | /home/alice/.config/alt_create                      |
+| macOS   | `$HOME`/Library/Application Support   | /Users/Alice/Library/Application Support/alt_create |
+| Windows | `{FOLDERID_RoamingAppData}`           | C:\Users\Alice\AppData\Roaming/alt_create           |
+
+1. 把epub文件复制到对应的操作系统下目录下 eg: linux放到 `/home/alice/.config/alt_create`
+2. 然后打开终端 运行`alt-create read`

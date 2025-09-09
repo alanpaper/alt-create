@@ -1,11 +1,13 @@
 
 use std::error::Error;
-use crate::epub::epub::EpubBook;
+use crate::epub::{book::{Book, BookManager}, epub::EpubBook};
 
 
 pub fn handle_command(
     command: &str,
-    book: &mut EpubBook,
+    epub_book: &mut EpubBook,
+    book: &Book,
+    book_manager: &mut BookManager,
 ) -> Result<bool, Box<dyn Error>> {
     let parts: Vec<&str> = command.split_whitespace().collect();
     if parts.is_empty() {
@@ -20,7 +22,7 @@ pub fn handle_command(
 
         "list" => {
             println!("\n--- 目录 ---");
-            for (i, session) in book.doc.toc.iter().enumerate() {
+            for (i, session) in epub_book.doc.toc.iter().enumerate() {
                 println!(
                     "{}. {:?} [{:?}]{}",
                     i + 1,
@@ -32,14 +34,26 @@ pub fn handle_command(
         }
 
         "next" => {
-            let current_page = book.doc.get_current_page();
-            book.get_next_page(current_page + 1);
+            let current_page = epub_book.doc.get_current_page();
+            book_manager.update_current_book(Book { 
+                name: book.name.clone(),
+                current_page: current_page + 1,
+                progress: book.progress,
+                path: book.path.clone(),
+            });
+            epub_book.get_next_page(current_page + 1);
         }
 
         "prev" => {
-            let current_page = book.doc.get_current_page();
+            let current_page = epub_book.doc.get_current_page();
             if current_page > 1 {
-                book.get_next_page(current_page - 1);
+                book_manager.update_current_book(Book { 
+                    name: book.name.clone(),
+                    current_page: current_page - 1,
+                    progress: book.progress,
+                    path: book.path.clone(),
+                });
+                epub_book.get_next_page(current_page - 1);
             }
         }
 
