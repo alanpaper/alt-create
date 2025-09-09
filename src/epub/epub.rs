@@ -3,17 +3,16 @@ use std::{fs::File, path::PathBuf};
 use serde::{Deserialize, Serialize};
 use terminal_size::{Width, terminal_size};
 use epub::doc::EpubDoc;
-use crate::epub::parse::convert_to_readable_text;
+use crate::epub::{book::Book, parse::convert_to_readable_text};
 
 pub struct EpubBook {
     pub doc: EpubDoc<std::io::BufReader<std::fs::File>>,
-    current_page: usize,
 }
 
 impl EpubBook {
-    pub fn new(path: &PathBuf, current_page: usize) -> Result<Self, anyhow::Error> {
-        let doc: EpubDoc<std::io::BufReader<std::fs::File>> = EpubDoc::new(path)?;
-        Ok(EpubBook { doc, current_page })
+    pub fn new(book: &Book) -> Result<Self, anyhow::Error> {
+        let doc: EpubDoc<std::io::BufReader<std::fs::File>> = EpubDoc::new(book.path.clone())?;
+        Ok(EpubBook { doc })
     }
     
     pub fn mdata(&self, key: &str) -> Option<String> {
@@ -57,8 +56,8 @@ impl EpubBook {
         Width(100)
     }
 
-    pub fn get_next_page(&mut self) {
-        self.doc.set_current_page(1);
+    pub fn get_next_page(&mut self, next: usize) {
+        self.doc.set_current_page(next);
         if let Some(id) = self.doc.get_current_id() {
             self.print_status();
             let source: Option<(Vec<u8>, String)> = self.doc.get_resource(&id);
@@ -86,9 +85,9 @@ impl EpubBook {
 }
 
 
-pub fn print_book_info(path: &PathBuf, current_page: usize) -> Result<(), anyhow::Error> {
-    let mut book = EpubBook::new(&path, current_page)?;
-    book.get_next_page();
+pub fn print_book_info(book: Book) -> Result<(), anyhow::Error> {
+    let mut book = EpubBook::new(&book)?;
+    book.get_next_page(1);
     Ok(())
 }
 

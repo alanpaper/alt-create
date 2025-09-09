@@ -5,8 +5,10 @@ use crate::action::CommandLineArgs;
 use crate::alterai::alterai;
 use crate::config::{Config};
 use crate::db;
+use crate::epub::book::BookManager;
 use crate::epub::epub::get_books_cache;
 use crate::epub::epub::print_book_info;
+use crate::epub::main_loop::main_loop;
 use crate::file::check_create_dir;
 use crate::game::dino;
 use crate::game::snake;
@@ -103,14 +105,9 @@ impl Alter {
                 }
             },
             Read { name } => {
-                // let path = self.config_dir.join("books").join(&name);
-                // let cache_path = self.config_dir.join("books").join("cache.json");
-                // let cache = get_books_cache(&name, &cache_path);
-                // let current_page = match cache {
-                //     Ok(cache) => cache.current_page,
-                //     Err(_) => 0,
-                // };
-                // let _ = print_book_info(&path, current_page);
+                let path = self.config_dir.join("books");
+                let book = BookManager::new(&path);
+                main_loop(book).await;
             }
         };
     }

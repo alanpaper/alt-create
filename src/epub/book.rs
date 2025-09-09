@@ -2,7 +2,7 @@ use std::{fs::{read_dir, File, OpenOptions}, io::{Seek, SeekFrom}, path::PathBuf
 use serde::{Deserialize, Serialize};
 use std::io::{Result as IoResult};
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Book {
     pub path: PathBuf,
     pub name: String,
@@ -30,17 +30,23 @@ impl Book {
 }
 
 pub struct BookManager {
+    pub current_book: Option<Book>,
     pub books: Vec<Book>,
 }
 
 impl BookManager {
 
     pub fn new(path: &PathBuf) -> BookManager {
-        let mut book = Self::get_books(path);
-        if book.is_empty() {
-            book = Self::init(&path);
+        let mut books = Self::get_books(path);
+        if books.is_empty() {
+            books = Self::init(&path);
         }
-        BookManager { books: book }
+
+        if books.is_empty() {
+            panic!("No books found");
+        }
+
+        BookManager { books, current_book: None }
     }
 
     fn init(path: &PathBuf) -> Vec<Book> {
@@ -61,6 +67,7 @@ impl BookManager {
     }
 
     pub fn update_books_json(&self, path: &PathBuf) {
+        let path = path.join("books.json");
         let file = OpenOptions::new()
             .read(true)
             .write(true)
@@ -72,6 +79,7 @@ impl BookManager {
     }
 
     fn get_books(path: &PathBuf) -> Vec<Book> {
+        let path = path.join("books.json");
         let file = OpenOptions::new()
             .read(true)
             .write(true)
